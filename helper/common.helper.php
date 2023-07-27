@@ -58,7 +58,8 @@ function qb($database = false) : \CI_Qb
 function fb_import($resource, $params = false, $opt = false)
 {
     $res_parse = explode('.', $resource);
-    if (!empty($res_parse) && ($res_parse[0] == 'db' || count($res_parse) >= 2)) {
+
+    if (!empty($res_parse) && count($res_parse) >= 2) {
         $res_type = array_shift($res_parse);
 
         return getResource($res_type, $res_parse, $params, $opt);
@@ -79,10 +80,16 @@ function getResource($type, $res_params, $params, $opt)
 
 function getObj($class, $postfix, $params = null)
 {
-    $coreClass   = '\\Forbiz\\'.ucfirst($postfix).'\\'.ucfirst($class[1]);
+    $class = array_map(function ($item) {
+        return ucfirst($item);
+    }, array_merge(['Forbiz', $postfix], $class));
 
-    if (class_exists($coreClass)) {
-        return new $coreClass($params);
+    if (!empty($class)) {
+        $coreClass = implode('\\', $class);
+
+        if (class_exists($coreClass)) {
+            return new $coreClass($params);
+        }
     }
 
     return false;

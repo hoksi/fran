@@ -1,11 +1,7 @@
 <?php
 require __DIR__ . '/../bootstrap.php';
 
-echo qb()
-    ->select('id, name')
-    ->from('users')
-    ->encryptLike('name', 'John')
-    ->where('id', 1)
-    ->getSql();
+/* @var $memberModel \Forbiz\Model\Test\Member */
+$memberModel = fb_import('model.test.member');
 
-var_dump(new \Forbiz\Model\Test\Member());
+var_dump($memberModel->getNenber(1));

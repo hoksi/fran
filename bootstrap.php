@@ -37,7 +37,6 @@ if (!defined('FRAN')) {
             }
 
             $classFile = realpath($classFile);
-            var_dump([$classFile, $cword]);
 
             if ($classFile) {
                 require_once($classFile);
