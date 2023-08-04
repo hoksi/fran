@@ -1,5 +1,7 @@
 {
     "require": {
-        "pimple/pimple": "^3.5"
+        "pimple/pimple": "^3.5",
+        "adodb/adodb-php": "^5.22",
+        "laminas/laminas-escaper": "^2.12"
     }
 }

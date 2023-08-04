@@ -6,10 +6,18 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitaed88dd42fe665004b5fcc5d2f150cc1
 {
+    public static $files = array (
+        'bf9f5270ae66ac6fa0290b4bf47867b7' => __DIR__ . '/..' . '/adodb/adodb-php/adodb.inc.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'P' => 
         array (
             'Psr\\Container\\' => 14,
+        ),
+        'L' => 
+        array (
+            'Laminas\\Escaper\\' => 16,
         ),
     );
 
@@ -17,6 +25,10 @@ class ComposerStaticInitaed88dd42fe665004b5fcc5d2f150cc1
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'Laminas\\Escaper\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laminas/laminas-escaper/src',
         ),
     );
 

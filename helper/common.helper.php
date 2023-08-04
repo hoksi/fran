@@ -290,3 +290,272 @@ function set_status_header($code = 200, $text = '')
         ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
     header($server_protocol.' '.$code.' '.$text, TRUE, $code);
 }
+
+/**
+ * Remove Invisible Characters
+ *
+ * This prevents sandwiching null characters
+ * between ascii characters, like Java\0script.
+ *
+ * @param	string
+ * @param	bool
+ * @return	string
+ */
+function remove_invisible_characters($str, $url_encoded = TRUE)
+{
+    $non_displayables = array();
+
+    // every control character except newline (dec 10),
+    // carriage return (dec 13) and horizontal tab (dec 09)
+    if ($url_encoded)
+    {
+        $non_displayables[] = '/%0[0-8bcef]/i';	// url encoded 00-08, 11, 12, 14, 15
+        $non_displayables[] = '/%1[0-9a-f]/i';	// url encoded 16-31
+        $non_displayables[] = '/%7f/i';	// url encoded 127
+    }
+
+    $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';	// 00-08, 11, 12, 14-31, 127
+
+    do
+    {
+        $str = preg_replace($non_displayables, '', $str, -1, $count);
+    }
+    while ($count);
+
+    return $str;
+}
+
+if (!function_exists('sess_val')) {
+    /**
+     * 세션에서 데이터 조회
+     * @param string ...$keys
+     * @return array|mixed|string
+     */
+    function sess_val(string ...$keys)
+    {
+        $len = count($keys);
+        if ($len > 0) {
+            switch ($len) {
+                case 4:
+                    return $_SESSION[$keys[0]][$keys[1]][$keys[2]][$keys[3]] ?? '';
+                case 3:
+                    return $_SESSION[$keys[0]][$keys[1]][$keys[2]] ?? '';
+                case 2:
+                    return $_SESSION[$keys[0]][$keys[1]] ?? '';
+                case 1:
+                    return $_SESSION[$keys[0]] ?? '';
+            }
+
+            return '';
+        } else {
+            return (isset($_SESSION) ? $_SESSION : []);
+        }
+    }
+}
+
+if (!function_exists('cook_val')) {
+    /**
+     * 쿠키에서 데이터 조회
+     * @param string ...$keys
+     * @return array|mixed|string
+     */
+    function cook_val(string ...$keys)
+    {
+        $len = count($keys);
+        if ($len > 0) {
+
+            switch ($len) {
+                case 4:
+                    return $_COOKIE[$keys[0]][$keys[1]][$keys[2]][$keys[3]] ?? '';
+                case 3:
+                    return $_COOKIE[$keys[0]][$keys[1]][$keys[2]] ?? '';
+                case 2:
+                    return $_COOKIE[$keys[0]][$keys[1]] ?? '';
+                case 1:
+                    return $_COOKIE[$keys[0]] ?? '';
+            }
+
+            return '';
+        } else {
+            return (isset($_COOKIE) ? $_COOKIE : []);
+        }
+    }
+}
+
+if (!function_exists('g_val')) {
+    /**
+     * 전역변수에서 데이터 조회
+     * @param ...$keys
+     * @return mixed|string
+     */
+    function g_val(...$keys)
+    {
+        switch (count($keys)) {
+            case 1:
+                return $GLOBALS[$keys[0]] ?? '';
+            case 2:
+                return $GLOBALS[$keys[0]][$keys[1]] ?? '';
+            case 3:
+                return $GLOBALS[$keys[0]][$keys[1]][$keys[2]] ?? '';
+            case 4:
+                return $GLOBALS[$keys[0]][$keys[1]][$keys[2]][$keys[3]] ?? '';
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('get_val')) {
+    /**
+     * $_GET에서 데이터 조회
+     * @param ...$keys
+     * @return mixed|string
+     */
+    function get_val($key = null, $defualt = null, $escape = false)
+    {
+        if ($key !== null) {
+            if (isset($_GET[$key])) {
+                return $escape ? fb_esc($_GET[$key]) : $_GET[$key];
+            } else {
+                return $defualt;
+            }
+        } else {
+            return $_GET;
+        }
+    }
+}
+
+if (!function_exists('post_val')) {
+    /**
+     * $_POST에서 데이터 조회
+     * @param ...$keys
+     * @return mixed|string
+     */
+    function post_val($key = null, $defualt = '', $escape = false)
+    {
+        if ($key !== null) {
+            if (isset($_POST[$key])) {
+                return $escape ? fb_esc($_POST[$key]) : $_POST[$key];
+            } else {
+                return $defualt;
+            }
+        } else {
+            return $_POST;
+        }
+    }
+}
+
+if ( ! function_exists('redirect'))
+{
+    /**
+     * Header Redirect
+     *
+     * Header redirect in two flavors
+     * For very fine grained control over headers, you could use the Output
+     * Library's set_header() function.
+     *
+     * @param	string	$uri	URL
+     * @param	string	$method	Redirect method
+     *			'auto', 'location' or 'refresh'
+     * @param	int	$code	HTTP Response status code
+     * @return	void
+     */
+    function redirect($uri = '', $method = 'auto', $code = NULL)
+    {
+        // IIS environment likely? Use 'refresh' for better compatibility
+        if ($method === 'auto' && isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== FALSE)
+        {
+            $method = 'refresh';
+        }
+        elseif ($method !== 'refresh' && (empty($code) OR ! is_numeric($code)))
+        {
+            if (isset($_SERVER['SERVER_PROTOCOL'], $_SERVER['REQUEST_METHOD']) && $_SERVER['SERVER_PROTOCOL'] === 'HTTP/1.1')
+            {
+                $code = ($_SERVER['REQUEST_METHOD'] !== 'GET')
+                    ? 303	// reference: http://en.wikipedia.org/wiki/Post/Redirect/Get
+                    : 307;
+            }
+            else
+            {
+                $code = 302;
+            }
+        }
+
+        switch ($method)
+        {
+            case 'refresh':
+                header('Refresh:0;url='.$uri);
+                break;
+            default:
+                header('Location: '.$uri, TRUE, $code);
+                break;
+        }
+        exit;
+    }
+}
+
+if (! function_exists('fb_esc')) {
+    /**
+     * Performs simple auto-escaping of data for security reasons.
+     * Might consider making this more complex at a later date.
+     *
+     * If $data is a string, then it simply escapes and returns it.
+     * If $data is an array, then it loops over it, escaping each
+     * 'value' of the key/value pairs.
+     *
+     * @param array|string $data
+     * @phpstan-param 'html'|'js'|'css'|'url'|'attr'|'raw' $context
+     * @param string|null $encoding Current encoding for escaping.
+     *                              If not UTF-8, we convert strings from this encoding
+     *                              pre-escaping and back to this encoding post-escaping.
+     *
+     * @return array|string
+     *
+     * @throws InvalidArgumentException
+     */
+    function fb_esc($data, string $context = 'html', ?string $encoding = null)
+    {
+        if (is_array($data)) {
+            foreach ($data as &$value) {
+                $value = esc($value, $context);
+            }
+        }
+
+        if (is_string($data)) {
+            $context = strtolower($context);
+
+            // Provide a way to NOT escape data since
+            // this could be called automatically by
+            // the View library.
+            if ($context === 'raw') {
+                return $data;
+            }
+
+            if (! in_array($context, ['html', 'js', 'css', 'url', 'attr'], true)) {
+                throw new InvalidArgumentException('Invalid escape context provided.');
+            }
+
+            $method = $context === 'attr' ? 'escapeHtmlAttr' : 'escape' . ucfirst($context);
+
+            static $escaper;
+            if (! $escaper) {
+                $escaper = new \Laminas\Escaper\Escaper($encoding);
+            }
+
+            if ($encoding && $escaper->getEncoding() !== $encoding) {
+                $escaper = new \Laminas\Escaper\Escaper($encoding);
+            }
+
+            $data = $escaper->{$method}($data);
+        }
+
+        return $data;
+    }
+}
+
+if (!function_exists('fb_now')) {
+    function fb_now()
+    {
+        return date('Y-m-d H:i:s');
+    }
+}
