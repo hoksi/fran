@@ -1,17 +1,17 @@
 <?php
 if (!defined('FRAN')) {
-    // FRAN 버전
+    //FRAN 버전
     define('FRAN', '1.0.0');
     //BASEPATH 설정
-    define('BASEPATH', __DIR__ . '/class/');
+    define('BASEPATH', __DIR__.'/class/');
+    //MODELPATH 설정
+    define('MODELPATH', __DIR__ . '/model/');
     //LOG작성 레벨
     define('THRESHOLD_LOG_LEVEL', 3);
-    // composer autoload
-    require __DIR__ . '/third-party/vendor/autoload.php';
-    // 전역 헬퍼 로드
-    require __DIR__ . '/helper/common.helper.php';
-    // 쿼리 빌더 로드
-    require BASEPATH . 'Qb.php';
+    //decrypt 상수
+    define('FBEC4B0E1CFB328CE5CBE1EDC4B68C34', '2ad265d024a06e3039c3649213a834390412aa7097ea05eea4e0b44c88ecf7972ad265d024a06e3039c3649213a834390412aa7097ea05eea4e0b44c88ecf797');
+    //composer autoload
+    require __DIR__ . '/third-party/autoload.php';
 
     // 쿼리 빌더 설정
     set_fran('qb', function () {
