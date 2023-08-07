@@ -7,4 +7,9 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'bf9f5270ae66ac6fa0290b4bf47867b7' => $vendorDir . '/adodb/adodb-php/adodb.inc.php',
+    '471a9c140ea3c7c25e60fcd23382a6c6' => $baseDir . '/../class/database/DB_driver.php',
+    '5acab4d14533df99ac6fc863e629f58f' => $baseDir . '/../class/database/DB_query_builder.php',
+    '497d83b00b602667bbcb612d59829d27' => $baseDir . '/../class/NunaQb.php',
+    '278dd7d5b2588af78f341eeb2fad1e21' => $baseDir . '/../class/CI_Qb.php',
+    'a5d661e5dc6fd26959b3b66fc5d54d51' => $baseDir . '/../helper/common.helper.php',
 );

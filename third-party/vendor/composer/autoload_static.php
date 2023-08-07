@@ -8,6 +8,11 @@ class ComposerStaticInitaed88dd42fe665004b5fcc5d2f150cc1
 {
     public static $files = array (
         'bf9f5270ae66ac6fa0290b4bf47867b7' => __DIR__ . '/..' . '/adodb/adodb-php/adodb.inc.php',
+        '471a9c140ea3c7c25e60fcd23382a6c6' => __DIR__ . '/../..' . '/../class/database/DB_driver.php',
+        '5acab4d14533df99ac6fc863e629f58f' => __DIR__ . '/../..' . '/../class/database/DB_query_builder.php',
+        '497d83b00b602667bbcb612d59829d27' => __DIR__ . '/../..' . '/../class/NunaQb.php',
+        '278dd7d5b2588af78f341eeb2fad1e21' => __DIR__ . '/../..' . '/../class/CI_Qb.php',
+        'a5d661e5dc6fd26959b3b66fc5d54d51' => __DIR__ . '/../..' . '/../helper/common.helper.php',
     );
 
     public static $prefixLengthsPsr4 = array (
