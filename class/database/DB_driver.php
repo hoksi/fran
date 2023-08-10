@@ -793,6 +793,11 @@ abstract class CI_DB_driver {
 		return $this->_execute($sql);
 	}
 
+    protected function _execute($sql)
+    {
+        return $this->conn_id;
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -926,6 +931,11 @@ abstract class CI_DB_driver {
 		return FALSE;
 	}
 
+    protected function _trans_begin()
+    {
+        return false;
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -949,6 +959,11 @@ abstract class CI_DB_driver {
 		return FALSE;
 	}
 
+    protected function _trans_commit()
+    {
+        return false;
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -971,6 +986,11 @@ abstract class CI_DB_driver {
 
 		return FALSE;
 	}
+
+    protected function _trans_rollback()
+    {
+        return false;
+    }
 
 	// --------------------------------------------------------------------
 
@@ -1287,6 +1307,11 @@ abstract class CI_DB_driver {
 		return $this->data_cache['table_names'];
 	}
 
+    protected function _list_tables($prefix_limit = FALSE)
+    {
+        return '';
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -1344,6 +1369,11 @@ abstract class CI_DB_driver {
 		return $fields;
 	}
 
+    protected function _list_columns($table = '')
+    {
+        return '';
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -1372,7 +1402,12 @@ abstract class CI_DB_driver {
 		return ($query) ? $query->field_data() : FALSE;
 	}
 
-	// --------------------------------------------------------------------
+    protected function _field_data($table)
+    {
+        return '';
+    }
+
+    // --------------------------------------------------------------------
 
 	/**
 	 * Escape the SQL Identifiers
@@ -1736,18 +1771,13 @@ abstract class CI_DB_driver {
 	 */
 	public function display_error($error = '', $swap = '', $native = FALSE)
 	{
-		$LANG =& load_class('Lang', 'core');
-		$LANG->load('db');
-
-		$heading = $LANG->line('db_error_heading');
-
 		if ($native === TRUE)
 		{
 			$message = (array) $error;
 		}
 		else
 		{
-			$message = is_array($error) ? $error : array(str_replace('%s', $swap, $LANG->line($error)));
+			$message = is_array($error) ? $error : [$error];
 		}
 
 		// Find the most likely culprit of the error by going through
@@ -1767,15 +1797,14 @@ abstract class CI_DB_driver {
 				if (strpos($call['file'], BASEPATH.'database') === FALSE && strpos($call['class'], 'Loader') === FALSE)
 				{
 					// Found it - use a relative path for safety
-					$message[] = 'Filename: '.str_replace(array(APPPATH, BASEPATH), '', $call['file']);
+					$message[] = 'Filename: '.str_replace(array(BASEPATH), '', $call['file']);
 					$message[] = 'Line Number: '.$call['line'];
 					break;
 				}
 			}
 		}
 
-		$error =& load_class('Exceptions', 'core');
-		echo $error->show_error($heading, $message, 'error_db');
+		echo show_error($message, 'error_db');
 		exit(8); // EXIT_DATABASE
 	}
 

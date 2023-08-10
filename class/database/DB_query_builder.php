@@ -1525,6 +1525,11 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 		return $affected_rows;
 	}
 
+    public function affected_rows()
+    {
+        return 0;
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
