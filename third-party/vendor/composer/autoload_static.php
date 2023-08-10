@@ -9,10 +9,11 @@ class ComposerStaticInitaed88dd42fe665004b5fcc5d2f150cc1
     public static $files = array (
         '471a9c140ea3c7c25e60fcd23382a6c6' => __DIR__ . '/../..' . '/../class/database/DB_driver.php',
         '5acab4d14533df99ac6fc863e629f58f' => __DIR__ . '/../..' . '/../class/database/DB_query_builder.php',
+        '86badffe88a1d301b346faea7f9137d4' => __DIR__ . '/../..' . '/../class/database/CI_DB.php',
         '1c58318a9898abbc3f2a94fa438ba024' => __DIR__ . '/../..' . '/../class/database/DB.php',
-        'a44607ac689243af60518a4a545cbffe' => __DIR__ . '/../..' . '/../class/NunaResult.php',
-        '497d83b00b602667bbcb612d59829d27' => __DIR__ . '/../..' . '/../class/NunaQb.php',
-        '278dd7d5b2588af78f341eeb2fad1e21' => __DIR__ . '/../..' . '/../class/CI_Qb.php',
+        'abc2392607ebfd1d0d4b4e4bc39505c2' => __DIR__ . '/../..' . '/../class/database/NunaResult.php',
+        '2f21381043eddd8510c54d7f603c6b19' => __DIR__ . '/../..' . '/../class/database/NunaQb.php',
+        '984a5143cfbfc186e733b2811a5abae8' => __DIR__ . '/../..' . '/../class/database/CI_Qb.php',
         'a5d661e5dc6fd26959b3b66fc5d54d51' => __DIR__ . '/../..' . '/../helper/common.helper.php',
     );
 

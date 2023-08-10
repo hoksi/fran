@@ -8,9 +8,10 @@ $baseDir = dirname($vendorDir);
 return array(
     '471a9c140ea3c7c25e60fcd23382a6c6' => $baseDir . '/../class/database/DB_driver.php',
     '5acab4d14533df99ac6fc863e629f58f' => $baseDir . '/../class/database/DB_query_builder.php',
+    '86badffe88a1d301b346faea7f9137d4' => $baseDir . '/../class/database/CI_DB.php',
     '1c58318a9898abbc3f2a94fa438ba024' => $baseDir . '/../class/database/DB.php',
-    'a44607ac689243af60518a4a545cbffe' => $baseDir . '/../class/NunaResult.php',
-    '497d83b00b602667bbcb612d59829d27' => $baseDir . '/../class/NunaQb.php',
-    '278dd7d5b2588af78f341eeb2fad1e21' => $baseDir . '/../class/CI_Qb.php',
+    'abc2392607ebfd1d0d4b4e4bc39505c2' => $baseDir . '/../class/database/NunaResult.php',
+    '2f21381043eddd8510c54d7f603c6b19' => $baseDir . '/../class/database/NunaQb.php',
+    '984a5143cfbfc186e733b2811a5abae8' => $baseDir . '/../class/database/CI_Qb.php',
     'a5d661e5dc6fd26959b3b66fc5d54d51' => $baseDir . '/../helper/common.helper.php',
 );

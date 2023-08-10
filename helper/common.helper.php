@@ -486,7 +486,7 @@ if (!function_exists('fb_esc')) {
     {
         if (is_array($data)) {
             foreach ($data as &$value) {
-                $value = esc($value, $context);
+                $value = fb_esc($value, $context);
             }
         }
 
@@ -619,5 +619,17 @@ if (!function_exists('get_env_value')) {
 
                 return $value === false ? null : $value;
         }
+    }
+}
+
+if (!function_exists('fb_valid_date')) {
+    function fb_valid_date($dateStr, $format = 'Y-m-d') {
+        return date($format, strtotime($dateStr));
+    }
+}
+
+if (!function_exists('xss_clean')) {
+    function xss_clean($data, string $context = 'html', ?string $encoding = null) {
+        return fb_esc($data, $context, $encoding);
     }
 }

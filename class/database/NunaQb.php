@@ -10,6 +10,7 @@ class NunaQb extends CI_DB_query_builder
     public $curs_id;
     public $limit_used;
     public $dbversion;
+    protected $_quoted_identifier;
 
     public function __construct($params)
     {

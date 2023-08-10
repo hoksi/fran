@@ -2,30 +2,32 @@
 
 // Template_ 2.2.8 2015-12-07 http://www.xtac.net Freeware - LGPL	
 
-class Template_
+class Template_ extends stdClass
 {
-	var $compile_check = true;
-	var $compile_dir   = '_compile';
-	var $compile_ext   = 'php';
-	var $skin          = '';
-	var $notice        = false;
-	var $path_digest   = false;
+	public $compile_check = true;
+	public $compile_dir   = '_compile';
+	public $compile_ext   = 'php';
+	public $skin          = '';
+	public $notice        = false;
+	public $path_digest   = false;
 
-	var $template_dir  = '_template';
-	var $prefilter     = '';
-	var $postfilter    = '';
-	var $permission    = 0777;
-	var $safe_mode     = false;
-	var $auto_constant = false;
+	public $template_dir  = '_template';
+	public $prefilter     = '';
+	public $postfilter    = '';
+	public $permission    = 0777;
+	public $safe_mode     = false;
+	public $auto_constant = false;
 
-	var $caching       = false;
-	var $cache_dir     = '_cache';
-	var $cache_expire  = 3600;
+	public $caching       = false;
+	public $cache_dir     = '_cache';
+	public $cache_expire  = 3600;
 	
-	var $var_=array(''=>array());
-	var $obj_=array();
-	var $_current_scope ='';
-	var $_php_error_reporting;
+	public $var_=array(''=>array());
+	public $obj_=array();
+	public $_current_scope ='';
+	public $_php_error_reporting;
+
+    public $tpl_;
 
 	function define($arg, $path='')
 	{
@@ -574,7 +576,7 @@ class Template_
 // Below methods are deprecated.
 	function loopLoad($id, $n=1)
 	{
-		if ($n===1) $this->b1= &$this->var_[$this->_current_scope][$id];
+		if ($n===1) $this->b1 = &$this->var_[$this->_current_scope][$id];
 		else $this->{'b'.$n}=&$this->{'b'.--$n}[count($this->{'b'.$n})-1][$id];
 	}
 	function loopPushAssign($arg, $n=1)

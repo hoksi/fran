@@ -63,9 +63,10 @@ class CI_Qb
         return $this;
     }
 
-    public function reConnect()
+    public function reConnect($dbConfig = 'all')
     {
-        getForbiz()->load->closeAllDB();
+        // DB reconnect
+        $this->getDb($dbConfig, true);
     }
 
     public function resetDatabase()
@@ -422,7 +423,7 @@ class CI_Qb
                 show_error('DB Encrypt Key Not Found!');
             }
 
-            $connectFile = realpath(__DIR__ . '/../config') . DIRECTORY_SEPARATOR . 'connection.php';
+            $connectFile = realpath(__DIR__ . '/../../config') . DIRECTORY_SEPARATOR . 'connection.php';
             if (file_exists($connectFile)) {
                 $dbConfig = require_once($connectFile);
 
@@ -439,10 +440,23 @@ class CI_Qb
         return $dbConfig;
     }
 
-    protected function getDb($dbConfig)
+    protected function getDb($dbConfig, $reConnect = false)
     {
         // DB 관리
         static $db = [];
+
+        // reconnect db
+        if ($reConnect) {
+            if ($dbConfig == 'all') {
+                foreach ($db as $key => $value) {
+                    $db[$key]->close();
+                    unset($db[$key]);
+                }
+            } else if (isset($db[$dbConfig])) {
+                $db[$dbConfig]->close();
+                unset($db[$dbConfig]);
+            }
+        }
 
         if (isset($db[$dbConfig]) && $db[$dbConfig] instanceof \CI_DB) {
             return $db[$dbConfig];

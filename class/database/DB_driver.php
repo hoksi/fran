@@ -793,6 +793,11 @@ abstract class CI_DB_driver {
 		return $this->_execute($sql);
 	}
 
+    protected function _execute($sql)
+    {
+        return $this->conn_id;
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -926,6 +931,11 @@ abstract class CI_DB_driver {
 		return FALSE;
 	}
 
+    protected function _trans_begin()
+    {
+        return false;
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -949,6 +959,11 @@ abstract class CI_DB_driver {
 		return FALSE;
 	}
 
+    protected function _trans_commit()
+    {
+        return false;
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -971,6 +986,11 @@ abstract class CI_DB_driver {
 
 		return FALSE;
 	}
+
+    protected function _trans_rollback()
+    {
+        return false;
+    }
 
 	// --------------------------------------------------------------------
 
@@ -1287,6 +1307,11 @@ abstract class CI_DB_driver {
 		return $this->data_cache['table_names'];
 	}
 
+    protected function _list_tables($prefix_limit = FALSE)
+    {
+        return '';
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -1344,6 +1369,11 @@ abstract class CI_DB_driver {
 		return $fields;
 	}
 
+    protected function _list_columns($table = '')
+    {
+        return '';
+    }
+
 	// --------------------------------------------------------------------
 
 	/**
@@ -1372,7 +1402,12 @@ abstract class CI_DB_driver {
 		return ($query) ? $query->field_data() : FALSE;
 	}
 
-	// --------------------------------------------------------------------
+    protected function _field_data($table)
+    {
+        return '';
+    }
+
+    // --------------------------------------------------------------------
 
 	/**
 	 * Escape the SQL Identifiers

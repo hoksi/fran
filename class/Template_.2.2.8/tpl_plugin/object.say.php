@@ -4,7 +4,7 @@
 
 class tpl_object_say
 {
-
+    public $user;
 	function tpl_object_say($user='guest')
 	{
 		$this->user= $user;

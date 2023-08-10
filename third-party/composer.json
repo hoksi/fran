@@ -3,10 +3,11 @@
         "files": [
             "../class/database/DB_driver.php",
             "../class/database/DB_query_builder.php",
+            "../class/database/CI_DB.php",
             "../class/database/DB.php",
-            "../class/NunaResult.php",
-            "../class/NunaQb.php",
-            "../class/CI_Qb.php",
+            "../class/database/NunaResult.php",
+            "../class/database/NunaQb.php",
+            "../class/database/CI_Qb.php",
             "../helper/common.helper.php"
         ],
         "psr-4": {
