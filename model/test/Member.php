@@ -9,13 +9,14 @@ class Member extends \Forbiz\Model\ForbizModel
         parent::__construct();
     }
 
-    public function getNenber($id)
+    public function getMenber($id)
     {
         return qb()
-            ->select('id, name')
-            ->from('users')
-            ->encryptLike('name', 'John')
-            ->where('id', 1)
-            ->getSql();
+            ->select('id')
+            ->select('code')
+            ->from('common_user')
+            ->where('id', $id)
+            ->exec()
+            ->getResultArray();
     }
 }

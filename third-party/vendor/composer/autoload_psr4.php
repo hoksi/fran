@@ -8,4 +8,6 @@ $baseDir = dirname($vendorDir);
 return array(
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'Laminas\\Escaper\\' => array($vendorDir . '/laminas/laminas-escaper/src'),
+    'Forbiz\\Model\\' => array($baseDir . '/../model'),
+    'CodeIgniter\\' => array($baseDir . '/../class/CodeIgniter'),
 );

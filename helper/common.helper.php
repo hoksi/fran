@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
  * 컨테이너 인스턴스를 반환한다.
@@ -9,6 +9,10 @@ function fran()
     static $fran = null;
 
     if ($fran === null) {
+        // .env 파일 로드
+        (new CodeIgniter\Config\DotEnv(__DIR__ . '/..'))->load();
+
+        // Pimple 컨테이너 인스턴스 생성
         $fran = new \Pimple\Container();
     }
 
@@ -45,10 +49,10 @@ function set_fran($key, $value)
  * @param $key
  * @return void
  */
-function qb($database = false) : \CI_Qb
+function qb($database = false): \CI_Qb
 {
     if ($database) {
-        return fran()['qb'][$database];
+        return fran()['qb']->setDatabase($database);
     }
 
 
@@ -72,7 +76,7 @@ function getResource($type, $res_params, $params, $opt)
 {
     switch ($type) {
         case 'model':
-            return getObj($res_params, 'model');
+            return getObj($res_params, $type, $params);
     }
 
     return false;
@@ -95,37 +99,26 @@ function getObj($class, $postfix, $params = null)
     return false;
 }
 
-function getForbiz()
-{
-    return fran();
-}
-
 function is_cli()
 {
-    return (PHP_SAPI === 'cli' OR defined('STDIN'));
+    return (PHP_SAPI === 'cli' or defined('STDIN'));
 }
 
 function show_error($message, $status_code = 500, $heading = 'An Error Was Encountered')
 {
     $status_code = abs($status_code);
-    if ($status_code < 100)
-    {
+    if ($status_code < 100) {
         $exit_status = $status_code + 9; // 9 is EXIT__AUTO_MIN
         $status_code = 500;
-    }
-    else
-    {
+    } else {
         $exit_status = 1; // EXIT_ERROR
     }
 
-    if (is_cli())
-    {
-        $message = "\t".(is_array($message) ? implode("\n\t", $message) : $message);
-    }
-    else
-    {
+    if (is_cli()) {
+        $message = "\t" . (is_array($message) ? implode("\n\t", $message) : $message);
+    } else {
         set_status_header($status_code);
-        $message = '<p>'.(is_array($message) ? implode('</p><p>', $message) : $message).'</p>';
+        $message = '<p>' . (is_array($message) ? nl2br(implode('</p><p>', $message)) : nl2br($message)) . '</p>';
     }
 
     echo $message;
@@ -148,38 +141,33 @@ function log_message($level, $msg)
 
     $level = strtoupper($level);
 
-    if (( ! isset($_levels[$level]) || ($_levels[$level] > THRESHOLD_LOG_LEVEL))) {
+    if ((!isset($_levels[$level]) || ($_levels[$level] > THRESHOLD_LOG_LEVEL))) {
         return FALSE;
     }
 
-    $filepath = BASEPATH.'../log/log-'.date('Y-m-d').'.php';
+    $filepath = BASEPATH . '../log/log-' . date('Y-m-d') . '.php';
     $message = '';
 
-    if ( ! file_exists($filepath))
-    {
+    if (!file_exists($filepath)) {
         $newfile = TRUE;
         $message .= "<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>\n\n";
     }
 
-    if ( ! $fp = @fopen($filepath, 'ab'))
-    {
+    if (!$fp = @fopen($filepath, 'ab')) {
         return FALSE;
     }
 
-    if ( ! $fp = @fopen($filepath, 'ab'))
-    {
+    if (!$fp = @fopen($filepath, 'ab')) {
         return FALSE;
     }
 
     flock($fp, LOCK_EX);
 
     $date = date('Y-m-d H:i:s');
-    $message .= $level.' - '.$date.' --> '.$msg.PHP_EOL;
+    $message .= $level . ' - ' . $date . ' --> ' . $msg . PHP_EOL;
 
-    for ($written = 0, $length = mb_strlen($message, '8bit'); $written < $length; $written += $result)
-    {
-        if (($result = fwrite($fp, mb_substr($message, $written, null, '8bit'))) === FALSE)
-        {
+    for ($written = 0, $length = mb_strlen($message, '8bit'); $written < $length; $written += $result) {
+        if (($result = fwrite($fp, mb_substr($message, $written, null, '8bit'))) === FALSE) {
             break;
         }
     }
@@ -187,8 +175,7 @@ function log_message($level, $msg)
     flock($fp, LOCK_UN);
     fclose($fp);
 
-    if (isset($newfile) && $newfile === TRUE)
-    {
+    if (isset($newfile) && $newfile === TRUE) {
         chmod($filepath, 0644);
     }
 
@@ -198,97 +185,90 @@ function log_message($level, $msg)
 /**
  * Set HTTP Status Header
  *
- * @param	int	the status code
- * @param	string
- * @return	void
+ * @param int    the status code
+ * @param string
+ * @return    void
  */
 function set_status_header($code = 200, $text = '')
 {
-    if (is_cli())
-    {
+    if (is_cli()) {
         return;
     }
 
-    if (empty($code) OR ! is_numeric($code))
-    {
+    if (empty($code) or !is_numeric($code)) {
         show_error('Status codes must be numeric', 500);
     }
 
-    if (empty($text))
-    {
-        is_int($code) OR $code = (int) $code;
+    if (empty($text)) {
+        is_int($code) or $code = (int)$code;
         $stati = array(
-            100	=> 'Continue',
-            101	=> 'Switching Protocols',
+            100 => 'Continue',
+            101 => 'Switching Protocols',
 
-            200	=> 'OK',
-            201	=> 'Created',
-            202	=> 'Accepted',
-            203	=> 'Non-Authoritative Information',
-            204	=> 'No Content',
-            205	=> 'Reset Content',
-            206	=> 'Partial Content',
+            200 => 'OK',
+            201 => 'Created',
+            202 => 'Accepted',
+            203 => 'Non-Authoritative Information',
+            204 => 'No Content',
+            205 => 'Reset Content',
+            206 => 'Partial Content',
 
-            300	=> 'Multiple Choices',
-            301	=> 'Moved Permanently',
-            302	=> 'Found',
-            303	=> 'See Other',
-            304	=> 'Not Modified',
-            305	=> 'Use Proxy',
-            307	=> 'Temporary Redirect',
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
+            305 => 'Use Proxy',
+            307 => 'Temporary Redirect',
 
-            400	=> 'Bad Request',
-            401	=> 'Unauthorized',
-            402	=> 'Payment Required',
-            403	=> 'Forbidden',
-            404	=> 'Not Found',
-            405	=> 'Method Not Allowed',
-            406	=> 'Not Acceptable',
-            407	=> 'Proxy Authentication Required',
-            408	=> 'Request Timeout',
-            409	=> 'Conflict',
-            410	=> 'Gone',
-            411	=> 'Length Required',
-            412	=> 'Precondition Failed',
-            413	=> 'Request Entity Too Large',
-            414	=> 'Request-URI Too Long',
-            415	=> 'Unsupported Media Type',
-            416	=> 'Requested Range Not Satisfiable',
-            417	=> 'Expectation Failed',
-            422	=> 'Unprocessable Entity',
-            426	=> 'Upgrade Required',
-            428	=> 'Precondition Required',
-            429	=> 'Too Many Requests',
-            431	=> 'Request Header Fields Too Large',
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            405 => 'Method Not Allowed',
+            406 => 'Not Acceptable',
+            407 => 'Proxy Authentication Required',
+            408 => 'Request Timeout',
+            409 => 'Conflict',
+            410 => 'Gone',
+            411 => 'Length Required',
+            412 => 'Precondition Failed',
+            413 => 'Request Entity Too Large',
+            414 => 'Request-URI Too Long',
+            415 => 'Unsupported Media Type',
+            416 => 'Requested Range Not Satisfiable',
+            417 => 'Expectation Failed',
+            422 => 'Unprocessable Entity',
+            426 => 'Upgrade Required',
+            428 => 'Precondition Required',
+            429 => 'Too Many Requests',
+            431 => 'Request Header Fields Too Large',
 
-            500	=> 'Internal Server Error',
-            501	=> 'Not Implemented',
-            502	=> 'Bad Gateway',
-            503	=> 'Service Unavailable',
-            504	=> 'Gateway Timeout',
-            505	=> 'HTTP Version Not Supported',
-            511	=> 'Network Authentication Required',
+            500 => 'Internal Server Error',
+            501 => 'Not Implemented',
+            502 => 'Bad Gateway',
+            503 => 'Service Unavailable',
+            504 => 'Gateway Timeout',
+            505 => 'HTTP Version Not Supported',
+            511 => 'Network Authentication Required',
         );
 
-        if (isset($stati[$code]))
-        {
+        if (isset($stati[$code])) {
             $text = $stati[$code];
-        }
-        else
-        {
+        } else {
             show_error('No status text available. Please check your status code number or supply your own message text.', 500);
         }
     }
 
-    if (strpos(PHP_SAPI, 'cgi') === 0)
-    {
-        header('Status: '.$code.' '.$text, TRUE);
+    if (strpos(PHP_SAPI, 'cgi') === 0) {
+        header('Status: ' . $code . ' ' . $text, TRUE);
         return;
     }
 
     $server_protocol = (isset($_SERVER['SERVER_PROTOCOL']) && in_array($_SERVER['SERVER_PROTOCOL'], array('HTTP/1.0', 'HTTP/1.1', 'HTTP/2'), TRUE))
         ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
-    header($server_protocol.' '.$code.' '.$text, TRUE, $code);
+    header($server_protocol . ' ' . $code . ' ' . $text, TRUE, $code);
 }
 
 /**
@@ -297,9 +277,9 @@ function set_status_header($code = 200, $text = '')
  * This prevents sandwiching null characters
  * between ascii characters, like Java\0script.
  *
- * @param	string
- * @param	bool
- * @return	string
+ * @param string
+ * @param bool
+ * @return    string
  */
 function remove_invisible_characters($str, $url_encoded = TRUE)
 {
@@ -307,20 +287,17 @@ function remove_invisible_characters($str, $url_encoded = TRUE)
 
     // every control character except newline (dec 10),
     // carriage return (dec 13) and horizontal tab (dec 09)
-    if ($url_encoded)
-    {
-        $non_displayables[] = '/%0[0-8bcef]/i';	// url encoded 00-08, 11, 12, 14, 15
-        $non_displayables[] = '/%1[0-9a-f]/i';	// url encoded 16-31
-        $non_displayables[] = '/%7f/i';	// url encoded 127
+    if ($url_encoded) {
+        $non_displayables[] = '/%0[0-8bcef]/i';    // url encoded 00-08, 11, 12, 14, 15
+        $non_displayables[] = '/%1[0-9a-f]/i';    // url encoded 16-31
+        $non_displayables[] = '/%7f/i';    // url encoded 127
     }
 
-    $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';	// 00-08, 11, 12, 14-31, 127
+    $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';    // 00-08, 11, 12, 14-31, 127
 
-    do
-    {
+    do {
         $str = preg_replace($non_displayables, '', $str, -1, $count);
-    }
-    while ($count);
+    } while ($count);
 
     return $str;
 }
@@ -445,8 +422,7 @@ if (!function_exists('post_val')) {
     }
 }
 
-if ( ! function_exists('redirect'))
-{
+if (!function_exists('redirect')) {
     /**
      * Header Redirect
      *
@@ -454,47 +430,40 @@ if ( ! function_exists('redirect'))
      * For very fine grained control over headers, you could use the Output
      * Library's set_header() function.
      *
-     * @param	string	$uri	URL
-     * @param	string	$method	Redirect method
-     *			'auto', 'location' or 'refresh'
-     * @param	int	$code	HTTP Response status code
-     * @return	void
+     * @param string $uri URL
+     * @param string $method Redirect method
+     *            'auto', 'location' or 'refresh'
+     * @param int $code HTTP Response status code
+     * @return    void
      */
     function redirect($uri = '', $method = 'auto', $code = NULL)
     {
         // IIS environment likely? Use 'refresh' for better compatibility
-        if ($method === 'auto' && isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== FALSE)
-        {
+        if ($method === 'auto' && isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== FALSE) {
             $method = 'refresh';
-        }
-        elseif ($method !== 'refresh' && (empty($code) OR ! is_numeric($code)))
-        {
-            if (isset($_SERVER['SERVER_PROTOCOL'], $_SERVER['REQUEST_METHOD']) && $_SERVER['SERVER_PROTOCOL'] === 'HTTP/1.1')
-            {
+        } elseif ($method !== 'refresh' && (empty($code) or !is_numeric($code))) {
+            if (isset($_SERVER['SERVER_PROTOCOL'], $_SERVER['REQUEST_METHOD']) && $_SERVER['SERVER_PROTOCOL'] === 'HTTP/1.1') {
                 $code = ($_SERVER['REQUEST_METHOD'] !== 'GET')
-                    ? 303	// reference: http://en.wikipedia.org/wiki/Post/Redirect/Get
+                    ? 303    // reference: http://en.wikipedia.org/wiki/Post/Redirect/Get
                     : 307;
-            }
-            else
-            {
+            } else {
                 $code = 302;
             }
         }
 
-        switch ($method)
-        {
+        switch ($method) {
             case 'refresh':
-                header('Refresh:0;url='.$uri);
+                header('Refresh:0;url=' . $uri);
                 break;
             default:
-                header('Location: '.$uri, TRUE, $code);
+                header('Location: ' . $uri, TRUE, $code);
                 break;
         }
         exit;
     }
 }
 
-if (! function_exists('fb_esc')) {
+if (!function_exists('fb_esc')) {
     /**
      * Performs simple auto-escaping of data for security reasons.
      * Might consider making this more complex at a later date.
@@ -531,14 +500,14 @@ if (! function_exists('fb_esc')) {
                 return $data;
             }
 
-            if (! in_array($context, ['html', 'js', 'css', 'url', 'attr'], true)) {
+            if (!in_array($context, ['html', 'js', 'css', 'url', 'attr'], true)) {
                 throw new InvalidArgumentException('Invalid escape context provided.');
             }
 
             $method = $context === 'attr' ? 'escapeHtmlAttr' : 'escape' . ucfirst($context);
 
             static $escaper;
-            if (! $escaper) {
+            if (!$escaper) {
                 $escaper = new \Laminas\Escaper\Escaper($encoding);
             }
 
@@ -557,5 +526,98 @@ if (!function_exists('fb_now')) {
     function fb_now()
     {
         return date('Y-m-d H:i:s');
+    }
+}
+
+if (!function_exists('force_download')) {
+    /**
+     * Force Download
+     *
+     * Generates headers that force a download to happen
+     *
+     * @param string    filename
+     * @param mixed    the data to be downloaded
+     * @return    void
+     */
+    function force_download($filename = '', $data = '')
+    {
+        if ($filename === '' or $data === '') {
+            return;
+        } elseif ($data === NULL) {
+            if (!@is_file($filename) or ($filesize = @filesize($filename)) === FALSE) {
+                return;
+            }
+
+            $filepath = $filename;
+            $filename = explode('/', str_replace(DIRECTORY_SEPARATOR, '/', $filename));
+            $filename = end($filename);
+        } else {
+            $filesize = strlen($data);
+        }
+
+        // Set the default MIME type to send
+        $mime = 'application/octet-stream';
+
+        $x = explode('.', $filename);
+        $extension = end($x);
+
+        /* It was reported that browsers on Android 2.1 (and possibly older as well)
+         * need to have the filename extension upper-cased in order to be able to
+         * download it.
+         *
+         * Reference: http://digiblog.de/2011/04/19/android-and-the-download-file-headers/
+         */
+        if (count($x) !== 1 && isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/Android\s(1|2\.[01])/', $_SERVER['HTTP_USER_AGENT'])) {
+            $x[count($x) - 1] = strtoupper($extension);
+            $filename = implode('.', $x);
+        }
+
+        if ($data === NULL && ($fp = @fopen($filepath, 'rb')) === FALSE) {
+            return;
+        }
+
+        // Clean output buffer
+        if (ob_get_level() !== 0 && @ob_end_clean() === FALSE) {
+            @ob_clean();
+        }
+
+        // Generate the server headers
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Expires: 0');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Length: ' . $filesize);
+        header('Cache-Control: private, no-transform, no-store, must-revalidate');
+
+        // If we have raw data - just dump it
+        if ($data !== NULL) {
+            exit($data);
+        }
+
+        // Flush 1MB chunks of data
+        while (!feof($fp) && ($data = fread($fp, 1048576)) !== FALSE) {
+            echo $data;
+        }
+
+        fclose($fp);
+        exit;
+    }
+}
+
+if (!function_exists('get_env_value')) {
+    function get_env_value(string $property)
+    {
+        switch (true) {
+            case array_key_exists($property, $_ENV):
+                return $_ENV[$property];
+
+            case array_key_exists($property, $_SERVER):
+                return $_SERVER[$property];
+
+            default:
+                $value = getenv($property);
+
+                return $value === false ? null : $value;
+        }
     }
 }

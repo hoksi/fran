@@ -48,7 +48,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @param 	bool		$query_builder_override
  *				Determines if query builder should be used or not
  */
-function &DB($params = '', $query_builder_override = NULL)
+function DB($params = '', $query_builder_override = NULL)
 {
 	// Load the DB config file if a DSN string wasn't passed
 	if (is_string($params) && strpos($params, '://') === FALSE)
@@ -164,11 +164,8 @@ function &DB($params = '', $query_builder_override = NULL)
 		$query_builder = $active_record;
 	}
 
-	require_once(BASEPATH.'database/DB_driver.php');
-
 	if ( ! isset($query_builder) OR $query_builder === TRUE)
 	{
-		require_once(BASEPATH.'database/DB_query_builder.php');
 		if ( ! class_exists('CI_DB', FALSE))
 		{
 			/**

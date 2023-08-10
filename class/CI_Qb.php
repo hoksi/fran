@@ -1,32 +1,32 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
  * @property CI_DB_mysqli_driver $masterDb
  */
 class CI_Qb
 {
-    private $aseEncryptKey  = false;
-    protected $database     = false;
-    protected $masterDb     = false;
-    protected $slaveDb      = false;
-    protected $etcDb        = [];
+    private $aseEncryptKey = false;
+    protected $database = false;
+    protected $masterDb = false;
+    protected $slaveDb = false;
+    protected $etcDb = [];
     protected $qb;
-    protected $queryType    = 'select';
-    protected $table        = false;
-    protected $subQryAlias  = '';
+    protected $queryType = 'select';
+    protected $table = false;
+    protected $subQryAlias = '';
     protected $params;
-    protected $totalRows    = 0;
-    protected $insertId     = false;
+    protected $totalRows = 0;
+    protected $insertId = false;
     protected $lastQury;
     protected $enableMaster = false;
-    public $total           = false;
+    public $total = false;
 
     protected $subQuery;
 
     public function __construct($params = [])
     {
         $this->params = $params;
-        $this->qb     = new NunaQb($params);
+        $this->qb = new NunaQb($params);
     }
 
     public function setAseEncryptKey($key)
@@ -76,11 +76,11 @@ class CI_Qb
         return $this;
     }
 
-    public function getEtcDb($dbName, $useTryCatch)
+    public function getEtcDb($dbName)
     {
         // set etcDb
         if (isset($this->etcDb[$dbName]) === false) {
-            $this->etcDb[$dbName] = getForbiz()->import('db.'.$dbName, ['useTryCatch' => $useTryCatch]);
+            $this->etcDb[$dbName] = $this->getDb($dbName);
         }
 
         return $this->etcDb[$dbName];
@@ -93,8 +93,8 @@ class CI_Qb
 
     public function betweenDate($col, $startDate, $endDate, $type = 'and')
     {
-        $startDate = (strlen($startDate) > 10 ? $startDate : ($startDate.' 00:00:00'));
-        $endDate   = (strlen($endDate) > 10 ? $endDate : ($endDate.' 23:59:59'));
+        $startDate = (strlen($startDate) > 10 ? $startDate : ($startDate . ' 00:00:00'));
+        $endDate = (strlen($endDate) > 10 ? $endDate : ($endDate . ' 23:59:59'));
         if ($type == 'or') {
             $this->orWhere("{$col} BETWEEN '{$startDate}' AND '{$endDate}'", null, false);
         } else {
@@ -184,28 +184,13 @@ class CI_Qb
         return $this->getMasterDb()->trans_commit();
     }
 
-    public function chkEnctyptKey()
-    {
-        if (!defined('FBEC4B0E1CFB328CE5CBE1EDC4B68C34')) {
-            $this->getSlaveDb();
-        }
-
-        if ($this->aseEncryptKey === false) {
-            $this->aseEncryptKey = FBEC4B0E1CFB328CE5CBE1EDC4B68C34;
-        }
-    }
-
     public function encrypt(string $val)
     {
-        $this->chkEnctyptKey();
-
         return sprintf("HEX(AES_ENCRYPT('%s','%s'))", $val, $this->aseEncryptKey);
     }
 
     public function decrypt(string $key)
     {
-        $this->chkEnctyptKey();
-
         return sprintf("AES_DECRYPT(UNHEX(%s),'%s')", $key, $this->aseEncryptKey);
     }
 
@@ -243,7 +228,7 @@ class CI_Qb
     {
         if ($alias === false) {
             if (strpos($key, '.') !== false) {
-                $data  = explode('.', $key);
+                $data = explode('.', $key);
                 $alias = array_pop($data);
             } else {
                 $alias = $key;
@@ -255,12 +240,12 @@ class CI_Qb
         return $this;
     }
 
-    public function encryptStr(String $value)
+    public function encryptStr(string $value)
     {
         $dbSelect = new CI_Qb($this->params);
 
-        $row =  $dbSelect
-            ->select($dbSelect->encrypt($value).' AS enc', false)
+        $row = $dbSelect
+            ->select($dbSelect->encrypt($value) . ' AS enc', false)
             ->from('dual', false)
             ->exec()
             ->getRowArray();
@@ -272,7 +257,7 @@ class CI_Qb
     {
         $qry = $method == 'get' ? $_GET : $_POST;
 
-        if(defined('PAGINATION_LINK_NUM') && PAGINATION_LINK_NUM > 0){
+        if (defined('PAGINATION_LINK_NUM') && PAGINATION_LINK_NUM > 0) {
             $link_num = PAGINATION_LINK_NUM;
         }
 
@@ -287,33 +272,33 @@ class CI_Qb
         unset($qry_str['cur_page']);
         unset($qry_str['per_page']);
 
-        $cur_page  = $cur_page < 1 ? 1 : $cur_page;
-        $per_page  = $per_page <= 0 ? 10 : $per_page;
-        $per_page  = $per_page > 1000 ? 1000 : $per_page;
+        $cur_page = $cur_page < 1 ? 1 : $cur_page;
+        $per_page = $per_page <= 0 ? 10 : $per_page;
+        $per_page = $per_page > 1000 ? 1000 : $per_page;
         $mid_range = intval(floor($link_num / 2));
 
         if ($this->totalRows > 0) {
             $total_rows = $this->totalRows;
 
             $last_page = intval(ceil($total_rows / $per_page));
-            $cur_page  = $cur_page > $last_page ? $last_page : $cur_page;
+            $cur_page = $cur_page > $last_page ? $last_page : $cur_page;
 
             $mid_range = $mid_range > $last_page ? $last_page : $mid_range;
 
             $page_list = array();
 
             $start = $cur_page - $mid_range;
-            $end   = $cur_page + $mid_range;
+            $end = $cur_page + $mid_range;
 
             if ($start <= 0) {
-                $end   += abs($start) + 1;
+                $end += abs($start) + 1;
                 $start = 1;
             }
 
             if ($end > $last_page) {
                 $start -= $end - $last_page;
                 $start = $start < 1 ? 1 : $start;
-                $end   = $last_page;
+                $end = $last_page;
             }
 
             $prev_jump = $start - ($mid_range + 1);
@@ -402,8 +387,8 @@ class CI_Qb
         $cntStr .= $this->qb->escape_identifiers('numrows');
 
         return $this->select($cntStr, false)
-                ->exec()
-                ->getRow()
+            ->exec()
+            ->getRow()
             ->numrows ?? 0;
     }
 
@@ -411,7 +396,7 @@ class CI_Qb
     {
         // set masterDb
         if ($this->masterDb === false) {
-            $this->masterDb = getForbiz()->import('db.master');
+            $this->masterDb = $this->getDb('master');
         }
 
         return $this->masterDb;
@@ -421,15 +406,88 @@ class CI_Qb
     {
         // set slaveDb
         if ($this->slaveDb === false) {
-            $this->slaveDb = getForbiz()->import('db.slave');
+            $this->slaveDb = $this->getDb('slave');
         }
 
         return $this->slaveDb;
     }
 
+    protected function getDbConfig()
+    {
+        static $dbConfig = false;
+
+        if ($dbConfig === false) {
+            $this->aseEncryptKey = get_env_value('fran_db_encrypt_key');
+            if ($this->aseEncryptKey === false) {
+                show_error('DB Encrypt Key Not Found!');
+            }
+
+            $connectFile = realpath(__DIR__ . '/../config') . DIRECTORY_SEPARATOR . 'connection.php';
+            if (file_exists($connectFile)) {
+                $dbConfig = require_once($connectFile);
+
+                if (empty($dbConfig)) {
+                    show_error('Database Config File Not Found!');
+                }
+
+                return $dbConfig;
+            } else {
+                show_error($connectFile . ' File Not Found!');
+            }
+        }
+
+        return $dbConfig;
+    }
+
+    protected function getDb($dbConfig)
+    {
+        // DB 관리
+        static $db = [];
+
+        if (isset($db[$dbConfig]) && $db[$dbConfig] instanceof \CI_DB) {
+            return $db[$dbConfig];
+        }
+
+        $config = $this->getDbConfig();
+
+        if (isset($config[$dbConfig])) {
+            $db[$dbConfig] = DB([
+                'hostname' => $config[$dbConfig]['host'],
+                'username' => $config[$dbConfig]['user'],
+                'password' => $config[$dbConfig]['pass'],
+                'database' => $config[$dbConfig]['name'],
+                'port' => $config[$dbConfig]['port'],
+                'dbdriver' => $config[$dbConfig]['dbdriver'] ?? FRAN_DEFAULT_DB_DRIVER,
+                'dbprefix' => '',
+                'pconnect' => FALSE,
+                'db_debug' => (get_env_value('fran_environment') !== 'production'),
+                'cache_on' => FALSE,
+                'cachedir' => '',
+                'char_set' => $config[$dbConfig]['char_set'] ?? 'utf8',
+                'dbcollat' => $config[$dbConfig]['dbcollat'] ?? 'utf8_general_ci',
+                'encrypt' => (!empty($config[$dbConfig]['encrypt']) ? [
+                    'ssl_set' => $config[$dbConfig]['encrypt']['ssl_set'] ?? FALSE,
+                    'ssl_verify' => $config[$dbConfig]['encrypt']['ssl_verify'] ?? FALSE,
+                    'ssl_key' => $config[$dbConfig]['encrypt']['ssl_key'] ?? NULL,
+                    'ssl_cert' => $config[$dbConfig]['encrypt']['ssl_cert'] ?? NULL,
+                    'ssl_ca' => $config[$dbConfig]['encrypt']['ssl_ca'] ?? NULL,
+                ] : FALSE),
+                'swap_pre' => '',
+                'compress' => FALSE,
+                'stricton' => FALSE,
+                'failover' => array(),
+                'save_queries' => FALSE
+            ], true);
+
+            return $db[$dbConfig];
+        }
+
+        show_error("Databse {$dbConfig} not exists!");
+    }
+
     public function getTableList($table)
     {
-        $rows   = $this->exec("show tables like '{$table}%'")->getResultArray();
+        $rows = $this->exec("show tables like '{$table}%'")->getResultArray();
         $tables = [];
         if (!empty($rows)) {
             foreach ($rows as $row) {
@@ -475,16 +533,23 @@ class CI_Qb
 
         $backLog = debug_backtrace(0)[0];
         $url = ($_SERVER['REQUEST_URI'] ?? 'CLI');
-        $sql = "/*\n* url : {$url}\n* file : {$backLog['file']}\n* line : {$backLog['line']}\n*/\n{$sql}";
 
+        $dbType = 'master';
         if ($this->database === false) {
             if ($this->enableMaster === true) {
                 $this->database = $this->getMasterDb();
             } else {
-                $this->database = ($queryType == 'select' ? $this->getSlaveDb() : $this->getMasterDb());
+                if ($queryType == 'select') {
+                    $this->database = $this->getSlaveDb();
+                    $dbType = 'slave';
+                } else {
+                    $this->database = $this->getMasterDb();
+                    $dbType = 'master';
+                }
             }
         }
 
+        $sql = "/*\n* url : {$url}\n* file : {$backLog['file']}\n* line : {$backLog['line']}\n* dbType : {$dbType}\n*/\n{$sql}";
         $this->lastQury = $sql;
 
         $result = $this->database->query($sql, false);
@@ -493,7 +558,7 @@ class CI_Qb
 
             $db_error = $this->database->error();
 
-            log_message('error', 'Database error! Error Code ['.$db_error['code'].'] Error: '.$db_error['message']);
+            log_message('error', 'Database error! Error Code [' . $db_error['code'] . '] Error: ' . $db_error['message']);
 
             // Database 재설정
             $this->resetDatabase();
@@ -502,15 +567,15 @@ class CI_Qb
         }
 
         if ($queryType == 'select') {
-            $res         = new NunaResult($result);
-            $this->total = $res->num_rows();
-        } else if($queryType == 'procedure') {
             $res = new NunaResult($result);
-        }else {
+            $this->total = $res->num_rows();
+        } else if ($queryType == 'procedure') {
+            $res = new NunaResult($result);
+        } else {
             if ($queryType == 'insert') {
                 if ($this->database->dbdriver == 'mysqli' || $this->database->dbdriver == 'postgre') {
                     $this->insertId = $this->database->insert_id();
-                    $res            = $this->insertId;
+                    $res = $this->insertId;
                 } else {
                     $res = true;
                 }
@@ -537,14 +602,14 @@ class CI_Qb
         $subQuery = new CI_Qb($this->params);
 
         $subQuery->subQryAlias = $alias ? $alias : '';
-        $subQuery->subQuery    = $subQuery;
+        $subQuery->subQuery = $subQuery;
 
         return $subQuery;
     }
 
     public function endSubQuery()
     {
-        $sql = '('.$this->subQuery->toStr().')'.($this->subQryAlias ? (' AS '.$this->subQryAlias) : '');
+        $sql = '(' . $this->subQuery->toStr() . ')' . ($this->subQryAlias ? (' AS ' . $this->subQryAlias) : '');
         unset($this->subQuery);
 
         return $sql;
@@ -577,8 +642,8 @@ class CI_Qb
      *
      * Generates the SELECT portion of the query
      *
-     * @param    string
-     * @param    mixed
+     * @param string
+     * @param mixed
      * @return    CI_Qb
      */
     public function select($select = '*', $escape = NULL)
@@ -594,8 +659,8 @@ class CI_Qb
      *
      * Generates a SELECT MAX(field) portion of a query
      *
-     * @param    string    the field
-     * @param    string    an alias
+     * @param string    the field
+     * @param string    an alias
      * @return    CI_Qb
      */
     public function selectMax($select = '', $alias = '')
@@ -610,8 +675,8 @@ class CI_Qb
      *
      * Generates a SELECT MIN(field) portion of a query
      *
-     * @param    string    the field
-     * @param    string    an alias
+     * @param string    the field
+     * @param string    an alias
      * @return    CI_Qb
      */
     public function selectMin($select = '', $alias = '')
@@ -626,8 +691,8 @@ class CI_Qb
      *
      * Generates a SELECT AVG(field) portion of a query
      *
-     * @param    string    the field
-     * @param    string    an alias
+     * @param string    the field
+     * @param string    an alias
      * @return    CI_Qb
      */
     public function selectAvg($select = '', $alias = '')
@@ -642,8 +707,8 @@ class CI_Qb
      *
      * Generates a SELECT SUM(field) portion of a query
      *
-     * @param    string    the field
-     * @param    string    an alias
+     * @param string    the field
+     * @param string    an alias
      * @return    CI_Qb
      */
     public function selectSum($select = '', $alias = '')
@@ -658,7 +723,7 @@ class CI_Qb
      *
      * Sets a flag which tells the query string compiler to add DISTINCT
      *
-     * @param    bool $val
+     * @param bool $val
      * @return    CI_Qb
      */
     public function distinct($val = TRUE)
@@ -673,13 +738,13 @@ class CI_Qb
      *
      * Generates the FROM portion of the query
      *
-     * @param    mixed $from can be a string or array
+     * @param mixed $from can be a string or array
      * @return    CI_Qb
      */
     public function from($from, $escape = true)
     {
         if ($this->queryType !== 'select') {
-            throw new Exception('Must call the "exec()" or "toStr()" method after calling '.$this->queryType);
+            throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
         } else {
             $this->qb->from($from, $escape);
 
@@ -693,10 +758,10 @@ class CI_Qb
      *
      * Generates the JOIN portion of the query
      *
-     * @param    string
-     * @param    string    the join condition
-     * @param    string    the type of join
-     * @param    string    whether not to try to escape identifiers
+     * @param string
+     * @param string    the join condition
+     * @param string    the type of join
+     * @param string    whether not to try to escape identifiers
      * @return    CI_Qb
      */
     public function join($table, $cond, $type = '', $escape = NULL)
@@ -713,9 +778,9 @@ class CI_Qb
      * Generates the WHERE portion of the query.
      * Separates multiple calls with 'AND'.
      *
-     * @param    mixed
-     * @param    mixed
-     * @param    bool
+     * @param mixed
+     * @param mixed
+     * @param bool
      * @return    CI_Qb
      */
     public function where($key, $value = NULL, $escape = NULL)
@@ -731,9 +796,9 @@ class CI_Qb
      * Generates the WHERE portion of the query.
      * Separates multiple calls with 'OR'.
      *
-     * @param    mixed
-     * @param    mixed
-     * @param    bool
+     * @param mixed
+     * @param mixed
+     * @param bool
      * @return    CI_Qb
      */
     public function orWhere($key, $value = NULL, $escape = NULL)
@@ -749,9 +814,9 @@ class CI_Qb
      * Generates a WHERE field IN('item', 'item') SQL query,
      * joined with 'AND' if appropriate.
      *
-     * @param    string $key The field to search
-     * @param    array $values The values searched on
-     * @param    bool $escape
+     * @param string $key The field to search
+     * @param array $values The values searched on
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function whereIn($key = NULL, $values = NULL, $escape = NULL)
@@ -767,9 +832,9 @@ class CI_Qb
      * Generates a WHERE field IN('item', 'item') SQL query,
      * joined with 'OR' if appropriate.
      *
-     * @param    string $key The field to search
-     * @param    array $values The values searched on
-     * @param    bool $escape
+     * @param string $key The field to search
+     * @param array $values The values searched on
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function orWhereIn($key = NULL, $values = NULL, $escape = NULL)
@@ -785,9 +850,9 @@ class CI_Qb
      * Generates a WHERE field NOT IN('item', 'item') SQL query,
      * joined with 'AND' if appropriate.
      *
-     * @param    string $key The field to search
-     * @param    array $values The values searched on
-     * @param    bool $escape
+     * @param string $key The field to search
+     * @param array $values The values searched on
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function whereNotIn($key = NULL, $values = NULL, $escape = NULL)
@@ -803,9 +868,9 @@ class CI_Qb
      * Generates a WHERE field NOT IN('item', 'item') SQL query,
      * joined with 'OR' if appropriate.
      *
-     * @param    string $key The field to search
-     * @param    array $values The values searched on
-     * @param    bool $escape
+     * @param string $key The field to search
+     * @param array $values The values searched on
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function orWhereNotIn($key = NULL, $values = NULL, $escape = NULL)
@@ -821,10 +886,10 @@ class CI_Qb
      * Generates a %LIKE% portion of the query.
      * Separates multiple calls with 'AND'.
      *
-     * @param    mixed $field
-     * @param    string $match
-     * @param    string $side
-     * @param    bool $escape
+     * @param mixed $field
+     * @param string $match
+     * @param string $side
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function like($field, $match = '', $side = 'both', $escape = NULL)
@@ -840,10 +905,10 @@ class CI_Qb
      * Generates a NOT LIKE portion of the query.
      * Separates multiple calls with 'AND'.
      *
-     * @param    mixed $field
-     * @param    string $match
-     * @param    string $side
-     * @param    bool $escape
+     * @param mixed $field
+     * @param string $match
+     * @param string $side
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function notLike($field, $match = '', $side = 'both', $escape = NULL)
@@ -859,10 +924,10 @@ class CI_Qb
      * Generates a %LIKE% portion of the query.
      * Separates multiple calls with 'OR'.
      *
-     * @param    mixed $field
-     * @param    string $match
-     * @param    string $side
-     * @param    bool $escape
+     * @param mixed $field
+     * @param string $match
+     * @param string $side
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function orLike($field, $match = '', $side = 'both', $escape = NULL)
@@ -878,10 +943,10 @@ class CI_Qb
      * Generates a NOT LIKE portion of the query.
      * Separates multiple calls with 'OR'.
      *
-     * @param    mixed $field
-     * @param    string $match
-     * @param    string $side
-     * @param    bool $escape
+     * @param mixed $field
+     * @param string $match
+     * @param string $side
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function orNotLike($field, $match = '', $side = 'both', $escape = NULL)
@@ -894,8 +959,8 @@ class CI_Qb
     /**
      * Starts a query group.
      *
-     * @param    string $not (Internal use only)
-     * @param    string $type (Internal use only)
+     * @param string $not (Internal use only)
+     * @param string $type (Internal use only)
      * @return    CI_Qb
      */
     public function groupStart($not = '', $type = 'AND ')
@@ -958,8 +1023,8 @@ class CI_Qb
     /**
      * GROUP BY
      *
-     * @param    string $by
-     * @param    bool $escape
+     * @param string $by
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function groupBy($by, $escape = NULL)
@@ -975,9 +1040,9 @@ class CI_Qb
      *
      * Separates multiple calls with 'AND'.
      *
-     * @param    string $key
-     * @param    string $value
-     * @param    bool $escape
+     * @param string $key
+     * @param string $value
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function having($key, $value = NULL, $escape = NULL)
@@ -992,9 +1057,9 @@ class CI_Qb
      *
      * Separates multiple calls with 'OR'.
      *
-     * @param    string $key
-     * @param    string $value
-     * @param    bool $escape
+     * @param string $key
+     * @param string $value
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function orHaving($key, $value = NULL, $escape = NULL)
@@ -1007,9 +1072,9 @@ class CI_Qb
     /**
      * ORDER BY
      *
-     * @param    string $orderby
-     * @param    string $direction ASC, DESC or RANDOM
-     * @param    bool $escape
+     * @param string $orderby
+     * @param string $direction ASC, DESC or RANDOM
+     * @param bool $escape
      * @return    CI_Qb
      */
     public function orderBy($orderby, $direction = '', $escape = NULL)
@@ -1023,8 +1088,8 @@ class CI_Qb
     /**
      * LIMIT
      *
-     * @param    int $value LIMIT value
-     * @param    int $offset OFFSET value
+     * @param int $value LIMIT value
+     * @param int $offset OFFSET value
      * @return    CI_Qb
      */
     public function limit($value, $offset = 0)
@@ -1046,7 +1111,7 @@ class CI_Qb
     /**
      * Sets the OFFSET value
      *
-     * @param    int $offset OFFSET value
+     * @param int $offset OFFSET value
      * @return    CI_Qb
      */
     public function offset($offset)
@@ -1061,9 +1126,9 @@ class CI_Qb
      *
      * Allows key/value pairs to be set for inserting or updating
      *
-     * @param    mixed
-     * @param    string
-     * @param    bool
+     * @param mixed
+     * @param string
+     * @param bool
      * @return    CI_Qb
      */
     public function set($key, $value = '', $escape = NULL)
@@ -1078,17 +1143,17 @@ class CI_Qb
      *
      * Compiles an insert string and runs the query
      *
-     * @param    string    the table to insert data into
-     * @param    array    an associative array of insert values
-     * @param    bool $escape Whether to escape values and identifiers
+     * @param string    the table to insert data into
+     * @param array    an associative array of insert values
+     * @param bool $escape Whether to escape values and identifiers
      * @return    CI_Qb
      */
     public function insert($table, $set = NULL, $escape = NULL)
     {
         if ($this->queryType !== 'select') {
-            throw new Exception('Must call the "exec()" or "toStr()" method after calling '.$this->queryType);
+            throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
         } else {
-            $this->table     = $table ? $table : $this->table;
+            $this->table = $table ? $table : $this->table;
             $this->queryType = 'insert';
 
             if ($set !== NULL) {
@@ -1118,10 +1183,10 @@ class CI_Qb
     public function update($table, $set = NULL, $where = NULL, $limit = NULL, $offset = NULL)
     {
         if ($this->queryType !== 'select') {
-            throw new Exception('Must call the "exec()" or "toStr()" method after calling '.$this->queryType);
+            throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
         } else {
 
-            $this->table     = $table ? $table : $this->table;
+            $this->table = $table ? $table : $this->table;
             $this->queryType = 'update';
 
             if ($set !== NULL) {
@@ -1148,20 +1213,20 @@ class CI_Qb
      *
      * Compiles a delete string and runs the query
      *
-     * @param    strint    the table(s) to delete from.
-     * @param    mixed    the where clause
-     * @param    mixed    the limit clause
+     * @param strint    the table(s) to delete from.
+     * @param mixed    the where clause
+     * @param mixed    the limit clause
      * @return    CI_Qb
      */
     public function delete($table, $where = '', $limit = NULL)
     {
         if ($this->queryType !== 'select') {
-            throw new Exception('Must call the "exec()" or "toStr()" method after calling '.$this->queryType);
+            throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
         } elseif (!is_string($table)) {
             throw new Exception('The table name is not a string.');
         } else {
 
-            $this->table     = $table ? $table : $this->table;
+            $this->table = $table ? $table : $this->table;
             $this->queryType = 'delete';
 
             if ($where != '') {
@@ -1222,18 +1287,18 @@ class CI_Qb
     }
 
     /**
-	 * insert multy.
-	 *
-	 * Generates a platform-specific insert string from the supplied data.
-	 *
-	 * @param	string	$table	INSERT table
-	 * @param	array	$set	INSERT values
-     * @param	boolean	$escape	
-     * @param	int	    $batch_size
-	 * @return	string
-	 */
-	public function insert_multy($table, $set, $escape = false, $batch_size = 100)
-	{
+     * insert multy.
+     *
+     * Generates a platform-specific insert string from the supplied data.
+     *
+     * @param string $table INSERT table
+     * @param array $set INSERT values
+     * @param boolean $escape
+     * @param int $batch_size
+     * @return    string
+     */
+    public function insert_multy($table, $set, $escape = false, $batch_size = 100)
+    {
         // 초기 변수 세팅.
         $this->table = $table;
         $queryValues = '';
@@ -1245,19 +1310,19 @@ class CI_Qb
         // batch 돌릴 데이터 쿼리화.
         $batchArr = array_chunk($set, $batch_size);
 
-        for ($i=0, $len=count($batchArr); $i < $len; $i ++) {
+        for ($i = 0, $len = count($batchArr); $i < $len; $i++) {
             foreach ($batchArr[$i] as $v) {
                 // filed 갯수와 values의 개수가 틀리면 에러.
                 if (count($keys) != count($v)) {
                     throw new Exception('The number of keys to insert and the number of values are different. Please check the $set variable again.');
                 }
-                
-                if($escape) {
+
+                if ($escape) {
                     $v = $this->qb->escape($v);
                 }
 
-                $queryValues .= '("'.implode('", "', $v).'")';
-                
+                $queryValues .= '("' . implode('", "', $v) . '")';
+
                 if ($batchCnt != count($set)) {
                     $queryValues .= ', ';
                 }
@@ -1266,12 +1331,12 @@ class CI_Qb
                 $loopCnt++;
 
             }
-            $this->exec('INSERT INTO '.$this->table.' (`'.implode('`, `', $keys).'`) VALUES '.$queryValues);
+            $this->exec('INSERT INTO ' . $this->table . ' (`' . implode('`, `', $keys) . '`) VALUES ' . $queryValues);
         }
-        
+
         return $loopCnt;
-        
-        
+
+
     }
 
 }

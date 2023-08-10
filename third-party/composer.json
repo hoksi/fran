@@ -3,14 +3,19 @@
         "files": [
             "../class/database/DB_driver.php",
             "../class/database/DB_query_builder.php",
+            "../class/database/DB.php",
+            "../class/NunaResult.php",
             "../class/NunaQb.php",
             "../class/CI_Qb.php",
             "../helper/common.helper.php"
-        ]
+        ],
+        "psr-4": {
+            "Forbiz\\Model\\": "../model",
+            "CodeIgniter\\": "../class/CodeIgniter"
+        }
     },
     "require": {
         "pimple/pimple": "^3.5",
-        "adodb/adodb-php": "^5.22",
         "laminas/laminas-escaper": "^2.12"
     }
 }
