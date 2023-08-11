@@ -12,6 +12,14 @@ function fran()
         // .env 파일 로드
         (new CodeIgniter\Config\DotEnv(__DIR__ . '/..'))->load();
 
+        if (get_env_value('fran_environment') === 'development') {
+            error_reporting(E_ALL);
+            ini_set('display_errors', 1);
+        } else {
+            error_reporting(0);
+            ini_set('display_errors', 0);
+        }
+
         // Pimple 컨테이너 인스턴스 생성
         $fran = new \Pimple\Container();
     }
@@ -133,19 +141,26 @@ function show_error($message, $status_code = 500, $heading = 'An Error Was Encou
  */
 function log_message($level, $msg)
 {
-    if (!defined('THRESHOLD_LOG_LEVEL') && THRESHOLD_LOG_LEVEL > 0) {
-        return false;
+    static $filepath = false;
+
+    if (!defined('THRESHOLD_LOG_LEVEL')) {
+        define('THRESHOLD_LOG_LEVEL', get_env_value('logger_threshold'));
+        if (($filepath = realpath(BASEPATH . '/../' . get_env_value('logger_path'))) === false) {
+            $filepath = BASEPATH . '/../' . get_env_value('logger_path') . DIRECTORY_SEPARATOR . 'log-' . date('Y-m-d') . '.php';
+        } else {
+            $filepath .= (DIRECTORY_SEPARATOR . 'log-' . date('Y-m-d') . '.php');
+        }
+
     }
 
     $_levels = ['ERROR' => 1, 'DEBUG' => 2, 'INFO' => 3, 'ALL' => 4];
 
     $level = strtoupper($level);
 
-    if ((!isset($_levels[$level]) || ($_levels[$level] > THRESHOLD_LOG_LEVEL))) {
+    if ($filepath === false && (!isset($_levels[$level]) || ($_levels[$level] > THRESHOLD_LOG_LEVEL))) {
         return FALSE;
     }
 
-    $filepath = BASEPATH . '../log/log-' . date('Y-m-d') . '.php';
     $message = '';
 
     if (!file_exists($filepath)) {
@@ -631,5 +646,17 @@ if (!function_exists('fb_valid_date')) {
 if (!function_exists('xss_clean')) {
     function xss_clean($data, string $context = 'html', ?string $encoding = null) {
         return fb_esc($data, $context, $encoding);
+    }
+}
+
+if (!function_exists('tpl')) {
+    function tpl(): \Template_\Template_ {
+        return fran()['tpl'];;
+    }
+}
+
+if (!function_exists('generate_emcrypt_key')) {
+    function generate_emcrypt_key(): string {
+        return bin2hex(random_bytes(64));
     }
 }

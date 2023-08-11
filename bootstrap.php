@@ -4,8 +4,6 @@ if (!defined('FRAN')) {
     define('FRAN', '1.0.0');
     //BASEPATH 설정
     define('BASEPATH', __DIR__ . '/class/');
-    //LOG작성 레벨
-    define('THRESHOLD_LOG_LEVEL', 3);
     // Default DB Driver 설정
     defined('FRAN_DEFAULT_DB_DRIVER') OR define('FRAN_DEFAULT_DB_DRIVER', 'mysqli');
     //decrypt 상수
@@ -15,8 +13,11 @@ if (!defined('FRAN')) {
 
     // 쿼리 빌더 설정
     set_fran('qb', function () {
-        $qb = new \CI_Qb();
+        return new \CI_Qb();
+    });
 
-        return $qb;
+    // Template 설정
+    set_fran('tpl', function () {
+        return new \Template_\Template_();
     });
 }

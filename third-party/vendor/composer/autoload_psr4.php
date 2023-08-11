@@ -6,8 +6,9 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Template_\\' => array($baseDir . '/../class/Template_.2.2.8'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'Laminas\\Escaper\\' => array($vendorDir . '/laminas/laminas-escaper/src'),
-    'Forbiz\\Model\\' => array($baseDir . '/../model'),
+    'Forbiz\\Model\\' => array($baseDir . '/../models'),
     'CodeIgniter\\' => array($baseDir . '/../class/CodeIgniter'),
 );

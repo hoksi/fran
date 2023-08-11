@@ -18,6 +18,10 @@ class ComposerStaticInitaed88dd42fe665004b5fcc5d2f150cc1
     );
 
     public static $prefixLengthsPsr4 = array (
+        'T' => 
+        array (
+            'Template_\\' => 10,
+        ),
         'P' => 
         array (
             'Psr\\Container\\' => 14,
@@ -37,6 +41,10 @@ class ComposerStaticInitaed88dd42fe665004b5fcc5d2f150cc1
     );
 
     public static $prefixDirsPsr4 = array (
+        'Template_\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/../class/Template_.2.2.8',
+        ),
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
@@ -47,7 +55,7 @@ class ComposerStaticInitaed88dd42fe665004b5fcc5d2f150cc1
         ),
         'Forbiz\\Model\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/../model',
+            0 => __DIR__ . '/../..' . '/../models',
         ),
         'CodeIgniter\\' => 
         array (
