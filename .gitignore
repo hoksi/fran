@@ -1,3 +1,7 @@
 /log/*.php
 /.idea
 /.env
+/writable/_compile/*.php
+/writable/logs/*.php
+/third-party/1
+/1

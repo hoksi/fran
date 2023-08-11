@@ -1,5 +1,5 @@
 <?php
-
+namespace Template_;
 /*---------------------------------------------------------------------------
 
   Program  : Template_
@@ -85,6 +85,10 @@ class Template_Compiler_
     public $statement;
     public $template_dir;
     public $tpl_path;
+
+    public function __construct()
+    {
+    }
 
     function _compile_template($tpl, $template_path, $compile_base, $compile_header)
     {
@@ -1223,5 +1227,3 @@ class Template_Compiler_
         exit;
     }
 }
-
-?>

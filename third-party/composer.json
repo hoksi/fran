@@ -11,8 +11,9 @@
             "../helper/common.helper.php"
         ],
         "psr-4": {
-            "Forbiz\\Model\\": "../model",
-            "CodeIgniter\\": "../class/CodeIgniter"
+            "Forbiz\\Model\\": "../models",
+            "CodeIgniter\\": "../class/CodeIgniter",
+            "Template_\\": "../class/Template_.2.2.8"
         }
     },
     "require": {
