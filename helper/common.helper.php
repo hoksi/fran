@@ -4,7 +4,7 @@
  * 컨테이너 인스턴스를 반환한다.
  * @return \Pimple\Container|null
  */
-function fran()
+function fran() : \Pimple\Container
 {
     static $fran = null;
 
@@ -658,5 +658,83 @@ if (!function_exists('tpl')) {
 if (!function_exists('generate_emcrypt_key')) {
     function generate_emcrypt_key(): string {
         return bin2hex(random_bytes(64));
+    }
+}
+
+if (!function_exists('form_validation')) {
+
+    /**
+     * 필수 데이타 점검
+     * @param array $formFieldList
+     * @param array $data
+     * @return bool
+     */
+    function form_validation($formFieldList, $data = []): bool
+    {
+        if (is_array($formFieldList) && !empty($formFieldList)) {
+            /* @var $validater FormValidation */
+            $validater = get_fran('formValidation');
+
+            $validater->reset_validation();
+
+            if (empty($data) && empty($_POST)) {
+                return false;
+            }
+
+            if (!empty($data)) {
+                $validater->set_data($data);
+            } else {
+                $validater->set_data($_POST);
+            }
+
+            foreach ($formFieldList as $field) {
+                $validater->set_rules($field, ucfirst($field), 'required', [
+                    'required' => 'The {field} field is required.',
+                ]);
+            }
+
+            return $validater->run();
+        }
+
+        return true;
+    }
+}
+
+if (!function_exists('validation_errors')) {
+    /**
+     * Validation Error String
+     *
+     * Returns all the errors associated with a form submission. This is a helper
+     * function for the form validation class.
+     *
+     * @param string
+     * @param string
+     * @return    string
+     */
+    function validation_errors($prefix = '', $suffix = '')
+    {
+        return get_fran('formValidation')->error_string($prefix, $suffix);
+    }
+}
+
+if ( ! function_exists('is_php'))
+{
+    /**
+     * Determines if the current version of PHP is equal to or greater than the supplied value
+     *
+     * @param	string
+     * @return	bool	TRUE if the current version is $version or higher
+     */
+    function is_php($version)
+    {
+        static $_is_php;
+        $version = (string) $version;
+
+        if ( ! isset($_is_php[$version]))
+        {
+            $_is_php[$version] = version_compare(PHP_VERSION, $version, '>=');
+        }
+
+        return $_is_php[$version];
     }
 }

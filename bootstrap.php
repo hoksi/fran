@@ -20,4 +20,9 @@ if (!defined('FRAN')) {
     set_fran('tpl', function () {
         return new \Template_\Template_();
     });
+
+    // 폼검증 설정
+    set_fran('formValidation', function () {
+        return new \CodeIgniter\Lib\FormValidation();
+    });
 }
