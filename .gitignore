@@ -5,3 +5,5 @@
 /writable/logs/*.php
 /third-party/1
 /1
+/stan.txt
+/.phpunit.cache
