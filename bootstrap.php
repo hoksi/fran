@@ -11,18 +11,6 @@ if (!defined('FRAN')) {
     //composer autoload
     require __DIR__ . '/third-party/vendor/autoload.php';
 
-    // 쿼리 빌더 설정
-    set_fran('qb', function () {
-        return new \CI_Qb();
-    });
-
-    // Template 설정
-    set_fran('tpl', function () {
-        return new \Template_\Template_();
-    });
-
-    // 폼검증 설정
-    set_fran('formValidation', function () {
-        return new \CodeIgniter\Lib\FormValidation();
-    });
+    // 컨테이너 초기화
+    i_love_fran();
 }

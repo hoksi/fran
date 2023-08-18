@@ -1349,8 +1349,5 @@ class CI_Qb
         }
 
         return $loopCnt;
-
-
     }
-
 }

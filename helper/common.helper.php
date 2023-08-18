@@ -4,7 +4,7 @@
  * 컨테이너 인스턴스를 반환한다.
  * @return \Pimple\Container|null
  */
-function fran() : \Pimple\Container
+function i_love_fran(): \Pimple\Container
 {
     static $fran = null;
 
@@ -21,7 +21,17 @@ function fran() : \Pimple\Container
         }
 
         // Pimple 컨테이너 인스턴스 생성
-        $fran = new \Pimple\Container();
+        $fran = new \Pimple\Container([
+            'qb' => function () {
+                return new \CI_Qb(); // 쿼리 빌더
+            },
+            'tpl' => function () {
+                return new \Template_\Template_(); // Template
+            },
+            'formValidation' => function () {
+                return new \CodeIgniter\Lib\FormValidation(); // 폼검증
+            },
+        ]);
     }
 
     return $fran;
@@ -35,7 +45,7 @@ function fran() : \Pimple\Container
 function get_fran($key = false)
 {
     if ($key) {
-        return fran()[$key];
+        return i_love_fran()[$key];
     }
 
     return fran();
@@ -49,7 +59,7 @@ function get_fran($key = false)
  */
 function set_fran($key, $value)
 {
-    fran()[$key] = $value;
+    i_love_fran()[$key] = $value;
 }
 
 /**
@@ -60,11 +70,11 @@ function set_fran($key, $value)
 function qb($database = false): \CI_Qb
 {
     if ($database) {
-        return fran()['qb']->setDatabase($database);
+        return i_love_fran()['qb']->setDatabase($database);
     }
 
 
-    return fran()['qb'];
+    return i_love_fran()['qb'];
 }
 
 function fb_import($resource, $params = false, $opt = false)
@@ -638,25 +648,29 @@ if (!function_exists('get_env_value')) {
 }
 
 if (!function_exists('fb_valid_date')) {
-    function fb_valid_date($dateStr, $format = 'Y-m-d') {
+    function fb_valid_date($dateStr, $format = 'Y-m-d')
+    {
         return date($format, strtotime($dateStr));
     }
 }
 
 if (!function_exists('xss_clean')) {
-    function xss_clean($data, string $context = 'html', ?string $encoding = null) {
+    function xss_clean($data, string $context = 'html', ?string $encoding = null)
+    {
         return fb_esc($data, $context, $encoding);
     }
 }
 
 if (!function_exists('tpl')) {
-    function tpl(): \Template_\Template_ {
+    function tpl(): \Template_\Template_
+    {
         return fran()['tpl'];;
     }
 }
 
 if (!function_exists('generate_emcrypt_key')) {
-    function generate_emcrypt_key(): string {
+    function generate_emcrypt_key(): string
+    {
         return bin2hex(random_bytes(64));
     }
 }
@@ -717,21 +731,19 @@ if (!function_exists('validation_errors')) {
     }
 }
 
-if ( ! function_exists('is_php'))
-{
+if (!function_exists('is_php')) {
     /**
      * Determines if the current version of PHP is equal to or greater than the supplied value
      *
-     * @param	string
-     * @return	bool	TRUE if the current version is $version or higher
+     * @param string
+     * @return    bool    TRUE if the current version is $version or higher
      */
     function is_php($version)
     {
         static $_is_php;
-        $version = (string) $version;
+        $version = (string)$version;
 
-        if ( ! isset($_is_php[$version]))
-        {
+        if (!isset($_is_php[$version])) {
             $_is_php[$version] = version_compare(PHP_VERSION, $version, '>=');
         }
 

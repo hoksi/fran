@@ -3,7 +3,7 @@
  * Description of ForbizResult
  *
  * @author hoksi
- * @property CI_DB_oci8_result $nrResult
+ * @property CI_DB_mysqli_result $nrResult
  */
 class NunaResult
 {
@@ -82,7 +82,18 @@ class NunaResult
      */
     public function getUnbufferedRow($type = 'object')
     {
-        return (is_object($this->nrResult) ? $this->nrResult->unbuffered_row($type) : false);
+        if (is_object($this->nrResult)) {
+            $row = $this->nrResult->unbuffered_row($type);
+
+            if ($row === null) {
+                $this->nrResult->free_result();
+            }
+
+            return $row;
+        }
+
+        return false;
+//        return (is_object($this->nrResult) ? $this->nrResult->unbuffered_row($type) : false);
     }
 
     /**
@@ -92,7 +103,7 @@ class NunaResult
      */
     public function freeResult()
     {
-        (is_object($this->nrResult) ? $this->nrResult->free_result() : false);
+        return (is_object($this->nrResult) ? $this->nrResult->free_result() : false);
     }
 
     /**
@@ -109,5 +120,59 @@ class NunaResult
                 }
             }
         }
+    }
+
+    /**
+     * Fetch Field Names
+     *
+     * Generates an array of column names.
+     *
+     * Overridden by driver result classes.
+     *
+     * @return	array
+     */
+    public function listFields()
+    {
+        return (is_object($this->nrResult) ? $this->nrResult->list_fields() : false);
+    }
+
+    /**
+     * Generate CSV from a query result object
+     *
+     * @param	array	$title      An optional row of column names to include in the CSV
+     * @param	string	$delim		Delimiter (default: ,)
+     * @param	string	$newline	Newline character (default: \n)
+     * @param	string	$enclosure	Enclosure (default: ")
+     * @return	string
+     */
+    public function toCsv($title = [], $delim = ',', $newline = "\n", $enclosure = '"')
+    {
+        $query = $this->nrResult;
+        if ( ! is_object($query) OR ! method_exists($query, 'list_fields'))
+        {
+            show_error('You must submit a valid result object');
+        }
+
+        $out = '';
+        // First generate the headings from the table column names
+        foreach ($query->list_fields() as $name)
+        {
+            $out .= $enclosure.str_replace($enclosure, $enclosure.$enclosure, $name).$enclosure.$delim;
+        }
+
+        $out = substr($out, 0, -strlen($delim)).$newline;
+
+        // Next blast through the result array and build out the rows
+        while ($row = $query->unbuffered_row('array'))
+        {
+            $line = array();
+            foreach ($row as $item)
+            {
+                $line[] = $enclosure.str_replace($enclosure, $enclosure.$enclosure, $item).$enclosure;
+            }
+            $out .= implode($delim, $line).$newline;
+        }
+
+        return $out;
     }
 }
