@@ -220,7 +220,7 @@ class NunaResult
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        realpath($file_name);
+        return realpath($file_name);
     }
 
     /**
@@ -256,6 +256,6 @@ class NunaResult
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        realpath($file_name);
+        return realpath($file_name);
     }
 }

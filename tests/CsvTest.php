@@ -13,7 +13,7 @@ class CsvTest extends \PHPUnit\Framework\TestCase
             ->exec()
             ->saveCsv('test.csv');
 
-        $this->assertEquals('"id","code"'."\n", $csv);
+        $this->assertEquals('D:\my\fran\test.csv', $csv);
     }
 
 
