@@ -117,12 +117,12 @@ class CI_Qb
         return $this;
     }
 
-    public function betweenColumn($date, $startColumn, $endColumn, $type = 'and')
+    public function betweenColumn($colOrString, $startColumn, $endColumn, $type = 'and')
     {
         if ($type == 'or') {
-            $this->orWhere("{$date} BETWEEN $startColumn AND $endColumn", null, false);
+            $this->orWhere("{$colOrString} BETWEEN $startColumn AND $endColumn", null, false);
         } else {
-            $this->where("{$date} BETWEEN $startColumn AND $endColumn", null, false);
+            $this->where("{$colOrString} BETWEEN $startColumn AND $endColumn", null, false);
         }
         return $this;
     }

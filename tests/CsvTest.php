@@ -10,9 +10,8 @@ class CsvTest extends \PHPUnit\Framework\TestCase
         $csv = qb()
             ->select('id, code')
             ->from('common_user')
-            ->where('id', 1)
             ->exec()
-            ->toCsv();
+            ->saveCsv('test.csv');
 
         $this->assertEquals('"id","code"'."\n", $csv);
     }

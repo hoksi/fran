@@ -154,20 +154,19 @@ function log_message($level, $msg)
     static $filepath = false;
 
     if (!defined('THRESHOLD_LOG_LEVEL')) {
-        define('THRESHOLD_LOG_LEVEL', get_env_value('logger_threshold'));
-        if (($filepath = realpath(BASEPATH . '/../' . get_env_value('logger_path'))) === false) {
-            $filepath = BASEPATH . '/../' . get_env_value('logger_path') . DIRECTORY_SEPARATOR . 'log-' . date('Y-m-d') . '.php';
-        } else {
-            $filepath .= (DIRECTORY_SEPARATOR . 'log-' . date('Y-m-d') . '.php');
-        }
+        define('THRESHOLD_LOG_LEVEL', intval(get_env_value('logger_threshold')));
+        define('FRAN_LOG_FILE_PATH', realpath(BASEPATH . '/../' . get_env_value('logger_path')));
+    }
 
+    if (FRAN_LOG_FILE_PATH !== false) {
+        $filepath = FRAN_LOG_FILE_PATH . (DIRECTORY_SEPARATOR . 'log-' . date('Y-m-d') . '.php');
     }
 
     $_levels = ['ERROR' => 1, 'DEBUG' => 2, 'INFO' => 3, 'ALL' => 4];
 
     $level = strtoupper($level);
 
-    if ($filepath === false && (!isset($_levels[$level]) || ($_levels[$level] > THRESHOLD_LOG_LEVEL))) {
+    if ($filepath === false || !isset($_levels[$level]) || ($_levels[$level] > THRESHOLD_LOG_LEVEL)) {
         return FALSE;
     }
 
@@ -176,10 +175,6 @@ function log_message($level, $msg)
     if (!file_exists($filepath)) {
         $newfile = TRUE;
         $message .= "<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>\n\n";
-    }
-
-    if (!$fp = @fopen($filepath, 'ab')) {
-        return FALSE;
     }
 
     if (!$fp = @fopen($filepath, 'ab')) {
