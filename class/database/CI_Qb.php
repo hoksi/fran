@@ -1179,6 +1179,26 @@ class CI_Qb
             return $this;
         }
     }
+
+
+    /**
+     * insertBatch
+     * @param $table
+     * @param $set
+     * @param $escape
+     * @param $batch_size
+     * @return array|false|int
+     * @throws Exception
+     */
+    public function insertBatch($table, $set = NULL, $escape = NULL, $batch_size = 100)
+    {
+        if ($this->queryType !== 'select') {
+            throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
+        } else {
+            $sql = $this->qb->insert_batch($table, $set, $escape, $batch_size);
+            return $sql;
+        }
+    }
     // --------------------------------------------------------------------
 
     /**
@@ -1218,6 +1238,16 @@ class CI_Qb
             }
 
             return $this;
+        }
+    }
+
+    public function updateBatch($table, $set = NULL, $index = NULL, $batch_size = 100)
+    {
+        if ($this->queryType !== 'select') {
+            throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
+        } else {
+            $sql = $this->qb->update_batch($table, $set, $index, $batch_size);
+            return $sql;
         }
     }
     // --------------------------------------------------------------------
@@ -1300,54 +1330,4 @@ class CI_Qb
         return $this->toStr();
     }
 
-    /**
-     * insert multy.
-     *
-     * Generates a platform-specific insert string from the supplied data.
-     *
-     * @param string $table INSERT table
-     * @param array $set INSERT values
-     * @param boolean $escape
-     * @param int $batch_size
-     * @return    string
-     */
-    public function insert_multy($table, $set, $escape = false, $batch_size = 100)
-    {
-        // 초기 변수 세팅.
-        $this->table = $table;
-        $queryValues = '';
-        $loopCnt = 0;
-        $batchCnt = 1;
-        $batchArr = [];
-        $keys = array_keys($set[0]);
-
-        // batch 돌릴 데이터 쿼리화.
-        $batchArr = array_chunk($set, $batch_size);
-
-        for ($i = 0, $len = count($batchArr); $i < $len; $i++) {
-            foreach ($batchArr[$i] as $v) {
-                // filed 갯수와 values의 개수가 틀리면 에러.
-                if (count($keys) != count($v)) {
-                    throw new Exception('The number of keys to insert and the number of values are different. Please check the $set variable again.');
-                }
-
-                if ($escape) {
-                    $v = $this->qb->escape($v);
-                }
-
-                $queryValues .= '("' . implode('", "', $v) . '")';
-
-                if ($batchCnt != count($set)) {
-                    $queryValues .= ', ';
-                }
-
-                $batchCnt++;
-                $loopCnt++;
-
-            }
-            $this->exec('INSERT INTO ' . $this->table . ' (`' . implode('`, `', $keys) . '`) VALUES ' . $queryValues);
-        }
-
-        return $loopCnt;
-    }
 }

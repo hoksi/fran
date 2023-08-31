@@ -1,6 +1,15 @@
 {
     "autoload": {
         "files": [
+            "../class/database/DB.php",
+            "../helper/common.helper.php"
+        ],
+        "psr-4": {
+            "Forbiz\\Model\\": "../models",
+            "CodeIgniter\\": "../class/CodeIgniter",
+            "Template_\\": "../class/Template_.2.2.8"
+        },
+        "classmap": [
             "../class/database/DB_driver.php",
             "../class/database/DB_query_builder.php",
             "../class/database/CI_DB.php",
@@ -8,13 +17,8 @@
             "../class/database/NunaResult.php",
             "../class/database/NunaQb.php",
             "../class/database/CI_Qb.php",
-            "../helper/common.helper.php"
-        ],
-        "psr-4": {
-            "Forbiz\\Model\\": "../models",
-            "CodeIgniter\\": "../class/CodeIgniter",
-            "Template_\\": "../class/Template_.2.2.8"
-        }
+            "../class/RedBeanPHP5_7_4/rb.php"
+        ]
     },
     "require": {
         "pimple/pimple": "^3.5",
