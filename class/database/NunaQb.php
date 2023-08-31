@@ -208,4 +208,115 @@ class NunaQb extends CI_DB_query_builder
     {
         return empty($this->qb_where) === false;
     }
+
+    /**
+     * Insert_Batch
+     *
+     * Compiles batch insert strings and runs the queries
+     *
+     * @param	string	$table	Table to insert into
+     * @param	array	$set 	An associative array of insert values
+     * @param	bool	$escape	Whether to escape values and identifiers
+     * @return	int	Number of rows inserted or FALSE on failure
+     */
+    public function insert_batch($table, $set = NULL, $escape = NULL, $batch_size = 100)
+    {
+        if ($set === NULL)
+        {
+            if (empty($this->qb_set))
+            {
+                return ($this->db_debug) ? $this->display_error('db_must_use_set') : FALSE;
+            }
+        }
+        else
+        {
+            if (empty($set))
+            {
+                return ($this->db_debug) ? $this->display_error('insert_batch() called with no data') : FALSE;
+            }
+
+            $this->set_insert_batch($set, '', $escape);
+        }
+
+        if (strlen($table) === 0)
+        {
+            if ( ! isset($this->qb_from[0]))
+            {
+                return ($this->db_debug) ? $this->display_error('db_must_set_table') : FALSE;
+            }
+
+            $table = $this->qb_from[0];
+        }
+
+        // Batch this baby
+        $sql = [];
+        for ($i = 0, $total = count($this->qb_set); $i < $total; $i += $batch_size)
+        {
+            $sql[] = $this->_insert_batch($this->protect_identifiers($table, TRUE, $escape, FALSE), $this->qb_keys, array_slice($this->qb_set, $i, $batch_size));
+        }
+
+        $this->_reset_write();
+
+        return $sql;
+    }
+
+    /**
+     * Update_Batch
+     *
+     * Compiles an update string and runs the query
+     *
+     * @param	string	the table to retrieve the results from
+     * @param	array	an associative array of update values
+     * @param	string	the where key
+     * @return	int	number of rows affected or FALSE on failure
+     */
+    public function update_batch($table, $set = NULL, $index = NULL, $batch_size = 100)
+    {
+        // Combine any cached components with the current statements
+        $this->_merge_cache();
+
+        if ($index === NULL)
+        {
+            return ($this->db_debug) ? $this->display_error('db_must_use_index') : FALSE;
+        }
+
+        if ($set === NULL)
+        {
+            if (empty($this->qb_set_ub))
+            {
+                return ($this->db_debug) ? $this->display_error('db_must_use_set') : FALSE;
+            }
+        }
+        else
+        {
+            if (empty($set))
+            {
+                return ($this->db_debug) ? $this->display_error('update_batch() called with no data') : FALSE;
+            }
+
+            $this->set_update_batch($set, $index);
+        }
+
+        if (strlen($table) === 0)
+        {
+            if ( ! isset($this->qb_from[0]))
+            {
+                return ($this->db_debug) ? $this->display_error('db_must_set_table') : FALSE;
+            }
+
+            $table = $this->qb_from[0];
+        }
+
+        // Batch this baby
+        $sql = [];
+        for ($i = 0, $total = count($this->qb_set_ub); $i < $total; $i += $batch_size)
+        {
+            $sql[] = $this->_update_batch($this->protect_identifiers($table, TRUE, NULL, FALSE), array_slice($this->qb_set_ub, $i, $batch_size), $index);
+
+            $this->qb_where = array();
+        }
+
+        $this->_reset_write();
+        return $sql;
+    }
 }
