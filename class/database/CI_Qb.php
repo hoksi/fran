@@ -549,17 +549,15 @@ class CI_Qb
         $url = ($_SERVER['REQUEST_URI'] ?? 'CLI');
 
         $dbType = 'master';
-        if ($this->database === false) {
-            if ($this->enableMaster === true) {
-                $this->database = $this->getMasterDb();
+        if ($this->enableMaster === true) {
+            $this->database = $this->getMasterDb();
+        } else {
+            if ($queryType == 'select') {
+                $this->database = $this->getSlaveDb();
+                $dbType = 'slave';
             } else {
-                if ($queryType == 'select') {
-                    $this->database = $this->getSlaveDb();
-                    $dbType = 'slave';
-                } else {
-                    $this->database = $this->getMasterDb();
-                    $dbType = 'master';
-                }
+                $this->database = $this->getMasterDb();
+                $dbType = 'master';
             }
         }
 
@@ -1195,8 +1193,16 @@ class CI_Qb
         if ($this->queryType !== 'select') {
             throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
         } else {
-            $sql = $this->qb->insert_batch($table, $set, $escape, $batch_size);
-            return $sql;
+            $batchSql = $this->qb->insert_batch($table, $set, $escape, $batch_size);
+            if (empty($batchSql)) {
+                return false;
+            }
+
+            foreach($batchSql as $sql) {
+                $this->exec($sql);
+            }
+
+            return count($set);
         }
     }
     // --------------------------------------------------------------------
@@ -1246,8 +1252,16 @@ class CI_Qb
         if ($this->queryType !== 'select') {
             throw new Exception('Must call the "exec()" or "toStr()" method after calling ' . $this->queryType);
         } else {
-            $sql = $this->qb->update_batch($table, $set, $index, $batch_size);
-            return $sql;
+            $batchSql = $this->qb->update_batch($table, $set, $index, $batch_size);
+            if (empty($batchSql)) {
+                return false;
+            }
+
+            foreach($batchSql as $sql) {
+                $this->exec($sql);
+            }
+
+            return count($set);
         }
     }
     // --------------------------------------------------------------------

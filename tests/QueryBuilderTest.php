@@ -26,9 +26,9 @@ class QueryBuilderTest extends \PHPUnit\Framework\TestCase
                 'user_email' => 'email'.$i
             ];
         }
-        $sql = qb()->insertBatch('common_user', $data);
+        $cnt = qb()->insertBatch('common_user', $data);
 
-        $this->AssertEquals(10, count($sql));
+        $this->AssertEquals(1000, $cnt);
 
     }
 
@@ -41,14 +41,27 @@ class QueryBuilderTest extends \PHPUnit\Framework\TestCase
         for($i = 0; $i < 1000; $i++) {
             $data[] = [
                 'user_id' => 'test'.$i,
-                'user_name' => 'test'.$i,
+                'user_name' => 'test'.($i+1),
                 'user_password' => 'test'.$i,
                 'user_email' => 'email'.$i
             ];
         }
-        $sql = qb()->updateBatch('common_user', $data, 'user_id', 10);
+        $cnt = qb()->updateBatch('common_user', $data, 'user_id', 10);
 
-        $this->AssertEquals(100, count($sql));
+        $this->AssertEquals(1000, $cnt);
+    }
+
+    /**
+     * @covers \CI_Qb::delete
+     */
+    public function testDelete()
+    {
+        $ret = qb()
+            ->like('user_id', 'test')
+            ->delete('common_user')
+            ->exec();
+
+        $this->AssertTrue($ret);
     }
 
 }
