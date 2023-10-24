@@ -28,6 +28,9 @@ function i_love_fran(): \Pimple\Container
             'tpl' => function () {
                 return new \Template_\Template_(); // Template
             },
+            'rb' => function () {
+                return new \R(); // RedBeanPHP
+            },
             'formValidation' => function () {
                 return new \CodeIgniter\Lib\FormValidation(); // 폼검증
             },
@@ -45,7 +48,7 @@ function i_love_fran(): \Pimple\Container
 function get_fran($key = false)
 {
     if ($key) {
-        return i_love_fran()[$key];
+        return i_love_fran()->offsetGet($key);
     }
 
     return fran();
@@ -744,4 +747,17 @@ if (!function_exists('is_php')) {
 
         return $_is_php[$version];
     }
+}
+
+function rb(): \RedBeanPHP\Facade
+{
+    if (get_env_value('redbean_use') !== 'true') {
+        show_error('RedBean is not enabled!');
+    }
+
+    if (get_fran('rb')::getPDO() === null) {
+        get_fran('rb')::setup(get_env_value('redbean_default_dsn'), get_env_value('readbean_username'), get_env_value('redbean_password'));
+    }
+
+    return get_fran('rb');
 }
